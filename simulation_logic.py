@@ -22,11 +22,12 @@ def simulation(simulation_time, day_num):
     """
     state, future_event_list = starting_state()
     r = random.random()
-    weather_condition = 'rainy'
+    weather_condition = 'rainy' if r < rain_probability(day_num) else 'sunny'
     clock = 0
     future_event_list.append({'Event Type': 'End of Simulation', 'Event Time': simulation_time})
     running = True
     id = 0
+
     while running:
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
 
@@ -53,9 +54,4 @@ def simulation(simulation_time, day_num):
             pass
         future_event_list.remove(current_event)
 
-def rain_probability(day_num):
-    """ this is function to find the rain probability of each day of the month"""
-
-    data_set = pd.read_csv('datasets/weather probabilty.csv')
-    return data_set.iloc[day_num-1,1]
 
