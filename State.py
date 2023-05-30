@@ -20,4 +20,17 @@ class state:
         self.Length_Queue_Expert = Length_Queue_Expert
         self.Length_Queue_Submitting_Complaint = Length_Queue_Submitting_Complaint
         self.Length_Waiting_Parking = Length_Waiting_Parking
+        self.alone_cars_in_parking_id = []
+
+
+        self.waiting_Queue_Parking = []
+        self.waiting_Queue_OutSide = []
+        self.waiting_Queue_Photography = []
+        self.waiting_Queue_Filing = []
+        self.waiting_Queue_Complete_the_case = []
+        self.waiting_Queue_Expert = []
+        self.waiting_Queue_Submitting_Complaint = []
+        self.waiting_Waiting_Parking = []
+
+
 
