@@ -15,6 +15,7 @@ def starting_state():
     is_alone = 1 if r < 0.3 else 0
 
     future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': 0, 'Event Time': 0})  # This is an Event
+
     return state, future_event_list
 
 def simulation(simulation_time, day_num):
@@ -28,7 +29,7 @@ def simulation(simulation_time, day_num):
     clock = 0
 
     running = True
-    id = 0
+    id = 1
 
     while running:
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
@@ -64,6 +65,7 @@ def simulation(simulation_time, day_num):
                     r = random.random()
                     is_alone = 1 if r < 0.3 else 0
                     future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': id, 'Event Time': clock + sample_exponential(1/arrival_rate(weather_condition,clock,dataset))})
+                    id += 1
                 #update cumulative statistics
             else:
                 #update the missing customers
@@ -158,11 +160,7 @@ def simulation(simulation_time, day_num):
 
             else:
                 state.Length_Queue_Expert -= 1
-                customer = state.waiting_Queue_Expert.pop(0)
-                r = random.random()
-
-
-
+                state.waiting_Queue_Expert.pop(0)
                 future_event_list.append({'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(1/9)})
 
             if current_event['complaint'] == 0:
@@ -206,9 +204,9 @@ def simulation(simulation_time, day_num):
                 pass
             else:
                 state.Length_Service_Expert3 += 1
-                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(6,9,8)})
+                future_event_list.append({'Event Type': 'DE','complaint': 0, 'Event Time': clock + sample_exponential(1/9)})
                 pass
-            pass
+
         elif Event_Type == 'PA':
 
             if current_event['first car id'] not in state.alone_cars_in_parking_id:
@@ -265,7 +263,7 @@ def simulation(simulation_time, day_num):
                 if state.Length_Service_Photographer == 0:
                     if state.Length_Service_Expert2 == 0:
                         if state.Length_Service_Expert3 == 0:
-                            break
+                            running = False
                         else:
                             pass
                     else:
