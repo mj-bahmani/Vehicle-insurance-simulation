@@ -107,7 +107,9 @@ def simulation(simulation_time, day_num):
             else:
                 state.Length_Queue_Complete_the_case -= 1
                 state.waiting_Queue_Complete_the_case.pop(0)
-                future_event_list.append({'Event Type': 'DC','complaint' : 0, 'Event Time': clock + sample_triangular(5,7,6)})
+                r = random.random()
+                complaint = 1 if r < 0.1 else 0
+                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(5,7,6)})
 
             if state.Length_Queue_Expert == 2:
                 state.Length_Queue_Expert += 1
@@ -115,14 +117,65 @@ def simulation(simulation_time, day_num):
 
             else:
                 state.Length_Service_Expert2 += 1
+                r = random.random()
+                complaint = 1 if r < 0.1 else 0
                 future_event_list.append(
-                    {'Event Type': 'DC', 'complaint': 0, 'Event Time': clock + sample_triangular(5, 7, 6)})
+                    {'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(9)})
 
         elif Event_Type == 'DC':
             pass
         elif Event_Type == 'DE':
+
+            if state.Length_Queue_Expert == 0:
+                state.Length_Service_Expert2 -= 1
+
+            else:
+                state.Length_Queue_Expert -= 1
+                future_event_list.append(state.waiting_Queue_Expert.pop(0))
+
+            if current_event['complaint'] == 0:
+                if state.Length_Service_Expert1 == 3:
+                    state.Length_Queue_Complete_the_case += 1
+                    state.waiting_Queue_Complete_the_case.append(current_event)
+
+
+                else:
+                    state.Length_Service_Expert1 += 1
+                    future_event_list.append({'Event Type': 'DF', 'Event Time': clock + sample_triangular(5,7,6)})
+
+
+                pass
+            else:
+                if state.Length_Queue_Submitting_Complaint == 0:
+                    state.Length_Service_Expert3 += 1
+                    future_event_list.append({'Event Type': 'DSC', 'Event Time': clock + sample_exponential(15)})
+
+
+                else:
+                    state.Length_Queue_Submitting_Complaint += 1
+                    state.waiting_Queue_Submitting_Complaint(current_event)
+
+
+
             pass
         elif Event_Type == 'DSC':
+            if state.Length_Queue_Submitting_Complaint == 0:
+                state.Length_Service_Expert3 -= 1
+                pass
+            else:
+                state.Length_Queue_Submitting_Complaint += 1
+                state.waiting_Queue_Submitting_Complaint.pop(0)
+                future_event_list({'Event Type': 'DC', 'Event Time': clock + sample_exponential(15)})
+                pass
+            current_event['complaint'] = 0
+            if state.Length_Service_Expert2 == 2:
+                state.Length_Queue_Expert += 1
+                state.waiting_Queue_Expert.append(current_event)
+                pass
+            else:
+                state.Length_Service_Expert3 += 1
+                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(5,7,6)})
+                pass
             pass
         elif Event_Type == 'PA':
 
