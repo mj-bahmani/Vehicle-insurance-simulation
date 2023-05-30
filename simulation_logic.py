@@ -115,6 +115,8 @@ def simulation(simulation_time, day_num):
 
             if state.Length_Service_Expert2 == 2:
                 state.Length_Queue_Expert += 1
+                complaint = 1 if r < 0.1 else 0
+                current_event['complaint'] = complaint
                 state.waiting_Queue_Expert.append(current_event)
 
             else:
@@ -156,11 +158,11 @@ def simulation(simulation_time, day_num):
 
             else:
                 state.Length_Queue_Expert -= 1
-                state.waiting_Queue_Expert.pop(0)
+                customer = state.waiting_Queue_Expert.pop(0)
                 r = random.random()
 
 
-                complaint = 1 if r < 0.1 else 0
+
                 future_event_list.append({'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(1/9)})
 
             if current_event['complaint'] == 0:
