@@ -50,19 +50,20 @@ def simulation(simulation_time, day_num):
                     else:
                         state.Length_Service_Photographer += 1
 
-                        future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
+                        future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(1/6)})
                 else:
                     if state.Length_Queue_Photography == 20:
                         state.Length_Queue_OutSide += 1
                         state.waiting_Queue_OutSide.append(current_event)
-                        future_event_list.append({'Event Type': 'PA','first car id' : current_event['id'], 'Event Time': clock + sample_exponential(30)})
+                        future_event_list.append({'Event Type': 'PA','first car id' : current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
 
                     else:
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append(current_event)
-                        future_event_list.append({'Event Type': 'PA','first car id':current_event['id'], 'Event Time': clock + sample_exponential(30)})
+                        future_event_list.append({'Event Type': 'PA','first car id':current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
+                    r = random.random()
                     is_alone = 1 if r < 0.3 else 0
-                    future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': 0, 'Event Time': clock + sample_exponential(arrival_rate(weather_condition,clock,dataset))})
+                    future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': id, 'Event Time': clock + sample_exponential(1/arrival_rate(weather_condition,clock,dataset))})
                 #update cumulative statistics
             else:
                 #update the missing customers
@@ -79,14 +80,17 @@ def simulation(simulation_time, day_num):
                     state.waiting_Queue_Photography.append(state.waiting_Queue_Parking.pop(0))
                     state.Length_Queue_Parking -= 1
 
-                future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
+                future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(1/6)})
             elif state.Length_Queue_Photography == 0:
                 state.Length_Service_Photographer -= 1
 
             else:
                 state.Length_Queue_Photography -= 1
                 state.waiting_Queue_Photography.pop(0)
-                future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
+                future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(1/6)})
+
+
+
             if state.Length_Service_Expert1 == 3:
                 state.Length_Queue_Filing += 1
                 state.waiting_Queue_Filing.append(current_event)
@@ -107,20 +111,18 @@ def simulation(simulation_time, day_num):
             else:
                 state.Length_Queue_Complete_the_case -= 1
                 state.waiting_Queue_Complete_the_case.pop(0)
-                r = random.random()
-                complaint = 1 if r < 0.1 else 0
-                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(5,7,6)})
+                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(6,9,8)})
 
-            if state.Length_Queue_Expert == 2:
+            if state.Length_Service_Expert2 == 2:
                 state.Length_Queue_Expert += 1
-                state.waiting_Queue_Expert.pop(0)
+                state.waiting_Queue_Expert.append(current_event)
 
             else:
                 state.Length_Service_Expert2 += 1
                 r = random.random()
                 complaint = 1 if r < 0.1 else 0
                 future_event_list.append(
-                    {'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(9)})
+                    {'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(1/9)})
 
         elif Event_Type == 'DC':
             if state.Length_Queue_Complete_the_case == 0:
@@ -136,7 +138,7 @@ def simulation(simulation_time, day_num):
             else:
                 state.Length_Queue_Complete_the_case -= 1
                 state.waiting_Queue_Complete_the_case.pop(0)
-                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(5,7,6)})
+                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(6,9,8)})
                 pass
             if convert_to_hour(clock) < 18:
                 pass
@@ -154,7 +156,12 @@ def simulation(simulation_time, day_num):
 
             else:
                 state.Length_Queue_Expert -= 1
-                future_event_list.append(state.waiting_Queue_Expert.pop(0))
+                state.waiting_Queue_Expert.pop(0)
+                r = random.random()
+
+
+                complaint = 1 if r < 0.1 else 0
+                future_event_list.append({'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(1/9)})
 
             if current_event['complaint'] == 0:
                 if state.Length_Service_Expert1 == 3:
@@ -164,14 +171,14 @@ def simulation(simulation_time, day_num):
 
                 else:
                     state.Length_Service_Expert1 += 1
-                    future_event_list.append({'Event Type': 'DF', 'Event Time': clock + sample_triangular(5,7,6)})
+                    future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(6,9,8)})
 
 
-                pass
+
             else:
-                if state.Length_Queue_Submitting_Complaint == 0:
+                if state.Length_Service_Expert3 == 0:
                     state.Length_Service_Expert3 += 1
-                    future_event_list.append({'Event Type': 'DSC', 'Event Time': clock + sample_exponential(15)})
+                    future_event_list.append({'Event Type': 'DSC', 'Event Time': clock + sample_exponential(1/15)})
 
 
                 else:
@@ -186,9 +193,9 @@ def simulation(simulation_time, day_num):
                 state.Length_Service_Expert3 -= 1
                 pass
             else:
-                state.Length_Queue_Submitting_Complaint += 1
+                state.Length_Queue_Submitting_Complaint -= 1
                 state.waiting_Queue_Submitting_Complaint.pop(0)
-                future_event_list({'Event Type': 'DC', 'Event Time': clock + sample_exponential(15)})
+                future_event_list({'Event Type': 'DSC', 'Event Time': clock + sample_exponential(1/15)})
                 pass
             current_event['complaint'] = 0
             if state.Length_Service_Expert2 == 2:
@@ -197,25 +204,26 @@ def simulation(simulation_time, day_num):
                 pass
             else:
                 state.Length_Service_Expert3 += 1
-                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(5,7,6)})
+                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(6,9,8)})
                 pass
             pass
         elif Event_Type == 'PA':
 
             if current_event['first car id'] not in state.alone_cars_in_parking_id:
-                for car in state.waiting_Queue_Parking:
+                for car in state.waiting_Queue_OutSide:
                     if car['id'] == current_event['first car id']:
                         car['alone'] = 0
                         break
-                state.waiting_Queue_Parking.remove(car)
+
 
             else:
                 temp = None
-                state.alone_cars_in_parking_id.remove(current_event['first car id'])
+                # state.alone_cars_in_parking_id.remove(current_event['first car id'])
                 for car in state.waiting_Waiting_Parking:
                     if car['id'] == current_event['first car id']:
                         temp = car
-                        state.waiting_Waiting_Parking.remove(car)
+                        state.waiting_Waiting_Parking.remove(temp)
+                        temp['alone'] = 0
                         break
                 if state.Length_Service_Photographer == 2:
 
@@ -228,12 +236,13 @@ def simulation(simulation_time, day_num):
                         state.waiting_Queue_Photography.append(current_event)
                 else:
                     state.Length_Service_Photographer += 1
-                    future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
+                    future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(1/6)})
         elif Event_Type == 'OIN':
             if convert_to_hour(clock) < 18:
-                if state.Length_Queue_OutSide < 0:
-                    car = state.waiting_Queue_OutSide[0]
-                    state.waiting_Queue_OutSide.remove(car)
+                if state.Length_Queue_OutSide > 0:
+                    car = state.waiting_Queue_OutSide.pop(0)
+                    state.Length_Queue_OutSide -= 1
+
                     if car['alone'] == 0:
                         state.Length_Queue_Photography += 1
                         state.waiting_Queue_Photography.append(car)
@@ -270,7 +279,6 @@ def simulation(simulation_time, day_num):
 def sample_exponential(lambda_val):
     """this is a function to sample from an exponential distribution with
     lambda: lambda_val using uniform value """
-
     r = random.random()
     return (-1/lambda_val)*math.log((1-r),math.e)
 
@@ -289,7 +297,7 @@ def arrival_rate(weather_condition, time, dataset):
     """ this is a function to find the arrival rate using weather condition and time of the
     day from the arrival rate data set"""
 
-    hour = time//60 + 8
+    hour = time/60 + 8
     w = 0 if weather_condition == 'rainy' else 1
     times = [8, 10, 13, 15]
     group = -1
