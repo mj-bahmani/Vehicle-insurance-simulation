@@ -21,6 +21,7 @@ def simulation(simulation_time, day_num):
     """ This is the main function of simulation that handles the modifications that each event notice
     applies on the state valriables
     """
+    dataset = pd.read_csv('datasets/Arrival Rate.csv')
     state, future_event_list = starting_state()
     r = random.random()
     weather_condition = 'rainy' if r < 0.31 else 'sunny'
@@ -61,4 +62,17 @@ def sample_exponential(lambda_val):
     r = random.random()
     return (-1/lambda_val)*math.log((1-r),math.e)
 
+def arrival_rate(weather_condition, time, dataset):
+    """ this is a function to find the arrival rate using weather condition and time of the day from the arrival rate data set"""
+
+    hour = time//60 + 8
+    w = 0 if weather_condition == 'rainy' else 1
+    times = [8, 10, 13, 15]
+    group = -1
+    for t in times:
+        if hour >= t:
+            group += 1
+        else:
+            break
+    return dataset.iloc[w,group+1]
 
