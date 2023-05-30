@@ -57,13 +57,26 @@ def simulation(simulation_time, day_num):
         future_event_list.remove(current_event)
 
 def sample_exponential(lambda_val):
-    """this is a function to sample from an exponential distribution with lambda: lambda_val using uniform value """
+    """this is a function to sample from an exponential distribution with
+    lambda: lambda_val using uniform value """
 
     r = random.random()
     return (-1/lambda_val)*math.log((1-r),math.e)
 
+def sample_triangular(min, max, mod):
+    """this is a function to sample from a triangular distribution with
+        mod, min and max using uniform distribution """
+
+    r = random.random()
+    threshold = (mod - min)/(max - min)
+    if r < threshold:
+        return math.sqrt(r*(max-min)*(mod-min)) + min
+    else:
+        return math.sqrt((1-r)*(max-min)*(mod-min)) + max
+
 def arrival_rate(weather_condition, time, dataset):
-    """ this is a function to find the arrival rate using weather condition and time of the day from the arrival rate data set"""
+    """ this is a function to find the arrival rate using weather condition and time of the
+    day from the arrival rate data set"""
 
     hour = time//60 + 8
     w = 0 if weather_condition == 'rainy' else 1
