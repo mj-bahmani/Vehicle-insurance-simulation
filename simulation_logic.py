@@ -123,6 +123,29 @@ def simulation(simulation_time, day_num):
                     {'Event Type': 'DE', 'complaint': complaint, 'Event Time': clock + sample_exponential(9)})
 
         elif Event_Type == 'DC':
+            if state.Length_Queue_Complete_the_case == 0:
+                if state.Length_Queue_Filing == 0:
+                    state.Length_Service_Expert1 -= 1
+                    pass
+                else:
+                    state.Length_Queue_Filing -= 1
+                    state.waiting_Queue_Filing.pop(0)
+                    future_event_list.append({'Event Type': 'DF', 'Event Time': clock + sample_triangular(5,7,6)})
+                    pass
+                pass
+            else:
+                state.Length_Queue_Complete_the_case -= 1
+                state.waiting_Queue_Complete_the_case.pop(0)
+                future_event_list.append({'Event Type': 'DC', 'Event Time': clock + sample_triangular(5,7,6)})
+                pass
+            if convert_to_hour(clock) < 18:
+                pass
+            else:
+                if state.Length_Service_Expert1 == 0:
+                    future_event_list.append({'Event Type': 'ISEND', 'Event Time': clock})
+                    pass
+                else:
+                    pass
             pass
         elif Event_Type == 'DE':
 
@@ -227,6 +250,19 @@ def simulation(simulation_time, day_num):
                 state.waiting_Queue_OutSide.clear()
 
         elif Event_Type == 'ISEND':
+            if state.Length_Waiting_Parking == 0:
+                if state.Length_Service_Photographer == 0:
+                    if state.Length_Service_Expert2 == 0:
+                        if state.Length_Service_Expert3 == 0:
+                            break
+                        else:
+                            pass
+                    else:
+                        pass
+                else:
+                    pass
+            else:
+                pass
             pass
         future_event_list.remove(current_event)
         id += 1
