@@ -108,7 +108,25 @@ def simulation(simulation_time, day_num):
                     state.Length_Service_Photographer += 1
                     future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
         elif Event_Type == 'OIN':
-            pass
+            if convert_to_hour(clock) < 18:
+                if state.Length_Queue_OutSide < 0:
+                    car = state.waiting_Queue_OutSide[0]
+                    state.waiting_Queue_OutSide.remove(car)
+                    if car['alone'] == 0:
+                        state.Length_Queue_Photography += 1
+                        state.waiting_Queue_Photography.append(car)
+
+                    else:
+                        state.Length_Waiting_Parking += 1
+                        state.waiting_Waiting_Parking.append(car)
+                        future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
+
+                else:
+                    pass
+            else:
+                state.Length_Queue_OutSide = 0
+                state.waiting_Queue_OutSide.clear()
+
         elif Event_Type == 'ISEND':
             pass
         future_event_list.remove(current_event)
