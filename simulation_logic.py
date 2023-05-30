@@ -59,7 +59,7 @@ def simulation(simulation_time, day_num):
 
                     else:
                         state.Length_Waiting_Parking += 1
-                        state.waiting_Queue_Parking.append(current_event)
+                        state.waiting_Waiting_Parking.append(current_event)
                         future_event_list.append({'Event Type': 'PA','first car id':current_event['id'], 'Event Time': clock + sample_exponential(30)})
                     is_alone = 1 if r < 0.3 else 0
                     future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': 0, 'Event Time': clock + sample_exponential(arrival_rate(weather_condition,clock,dataset))})
@@ -79,6 +79,7 @@ def simulation(simulation_time, day_num):
         elif Event_Type == 'DSC':
             pass
         elif Event_Type == 'PA':
+
             if current_event['first car id'] not in state.alone_cars_in_parking_id:
                 for car in state.waiting_Queue_Parking:
                     if car['id'] == current_event['first car id']:
@@ -87,12 +88,31 @@ def simulation(simulation_time, day_num):
                 state.waiting_Queue_Parking.remove(car)
 
             else:
-                pass
+                temp = None
+                state.alone_cars_in_parking_id.remove(current_event['first car id'])
+                for car in state.waiting_Waiting_Parking:
+                    if car['id'] == current_event['first car id']:
+                        temp = car
+                        state.waiting_Waiting_Parking.remove(car)
+                        break
+                if state.Length_Service_Photographer == 2:
+
+                    if state.Length_Queue_Photography == 20:
+                        state.Length_Queue_Parking += 1
+                        state.waiting_Queue_Parking.append(current_event)
+
+                    else:
+                        state.Length_Queue_Photography += 1
+                        state.waiting_Queue_Photography.append(current_event)
+                else:
+                    state.Length_Service_Photographer += 1
+                    future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
         elif Event_Type == 'OIN':
             pass
         elif Event_Type == 'ISEND':
             pass
         future_event_list.remove(current_event)
+        id += 1
 
 def sample_exponential(lambda_val):
     """this is a function to sample from an exponential distribution with
