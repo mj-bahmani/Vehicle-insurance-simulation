@@ -2,6 +2,7 @@ import pandas as pd
 
 import State
 import random
+import math
 def starting_state():
     """ this is a function to evaluate the initial state of FEL in simulation"""
     # initialize all state variables
@@ -22,7 +23,7 @@ def simulation(simulation_time, day_num):
     """
     state, future_event_list = starting_state()
     r = random.random()
-    weather_condition = 'rainy' if r < rain_probability(day_num) else 'sunny'
+    weather_condition = 'rainy' if r < 0.31 else 'sunny'
     clock = 0
     future_event_list.append({'Event Type': 'End of Simulation', 'Event Time': simulation_time})
     running = True
@@ -53,5 +54,11 @@ def simulation(simulation_time, day_num):
         elif Event_Type == 'ISEND':
             pass
         future_event_list.remove(current_event)
+
+def sample_exponential(lambda_val):
+    """this is a function to sample from an exponential distribution with lambda: lambda_val using uniform value """
+
+    r = random.random()
+    return (-1/lambda_val)*math.log((1-r),math.e)
 
 
