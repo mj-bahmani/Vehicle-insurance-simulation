@@ -95,7 +95,29 @@ def simulation(simulation_time, day_num):
                 state.Length_Service_Expert1 += 1
                 future_event_list.append({'Event Type': 'DF', 'Event Time': clock + sample_triangular(5,7,6)})
         elif Event_Type == 'DF':
-            pass
+            if state.Length_Queue_Complete_the_case == 0:
+                if state.Length_Queue_Filing == 0:
+                    state.Length_Service_Expert1 -= 1
+
+                else:
+                    state.Length_Queue_Filing -= 1
+                    state.waiting_Queue_Filing.pop(0)
+                    future_event_list.append({'Event Type': 'DF', 'Event Time': clock + sample_triangular(5,7,6)})
+                pass
+            else:
+                state.Length_Queue_Complete_the_case -= 1
+                state.waiting_Queue_Complete_the_case.pop(0)
+                future_event_list.append({'Event Type': 'DC','complaint' : 0, 'Event Time': clock + sample_triangular(5,7,6)})
+
+            if state.Length_Queue_Expert == 2:
+                state.Length_Queue_Expert += 1
+                state.waiting_Queue_Expert.pop(0)
+
+            else:
+                state.Length_Service_Expert2 += 1
+                future_event_list.append(
+                    {'Event Type': 'DC', 'complaint': 0, 'Event Time': clock + sample_triangular(5, 7, 6)})
+
         elif Event_Type == 'DC':
             pass
         elif Event_Type == 'DE':
