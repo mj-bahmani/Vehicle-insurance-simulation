@@ -68,8 +68,32 @@ def simulation(simulation_time, day_num):
                 #update the missing customers
                 pass
         elif Event_Type == 'DP':
+            if state.Length_Queue_Photography == 20:
+                state.Length_Queue_Photography -= 1
+                customer = state.waiting_Queue_Photography.pop(0)
+                if state.Length_Waiting_Parking == 0:
+                    future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
 
-            pass
+                else:
+                    state.Length_Queue_Photography += 1
+                    state.waiting_Queue_Photography.append(state.waiting_Queue_Parking.pop(0))
+                    state.Length_Queue_Parking -= 1
+
+                future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
+            elif state.Length_Queue_Photography == 0:
+                state.Length_Service_Photographer -= 1
+
+            else:
+                state.Length_Queue_Photography -= 1
+                state.waiting_Queue_Photography.pop(0)
+                future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(6)})
+            if state.Length_Service_Expert1 == 3:
+                state.Length_Queue_Filing += 1
+                state.waiting_Queue_Filing.append(current_event)
+
+            else:
+                state.Length_Service_Expert1 += 1
+                future_event_list.append({'Event Type': 'DF', 'Event Time': clock + sample_triangular(5,7,6)})
         elif Event_Type == 'DF':
             pass
         elif Event_Type == 'DC':
