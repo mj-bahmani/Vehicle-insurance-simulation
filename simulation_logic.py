@@ -311,7 +311,7 @@ def sample_triangular(min, max, mod):
     if r < threshold:
         return math.sqrt(r*(max-min)*(mod-min)) + min
     else:
-        return max - math.sqrt((1-r)*(max-min)*(mod-min))
+        return max - math.sqrt((1-r)*(max-min)*(max-mod))
 
 def arrival_rate(weather_condition, time, dataset):
     """ this is a function to find the arrival rate using weather condition and time of the
@@ -332,3 +332,8 @@ def convert_to_hour(time):
     return 8 + time/60
 
 simulation()
+
+s = 0
+for i in range(1000000):
+    s += sample_triangular(5,6,7)
+print(s/1000000)
