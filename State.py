@@ -5,7 +5,7 @@ class state:
                  Length_Queue_Photography=0, Length_Queue_Filing=0, Length_Queue_Complete_the_case=0,
                  Length_Queue_Expert=0, Length_Queue_Submitting_Complaint=0, Length_Waiting_Parking=0 ):
         """"
-        initializing all the state variables of the Queue system
+        initializing all the state variables of the Queue systems
 
         """
         self.Length_Service_Photographer = Length_Service_Photographer
