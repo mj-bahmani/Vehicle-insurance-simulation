@@ -4,13 +4,13 @@ import pandas as pd
 import random
 import math
 
-from State import State
+from States import States
 
 
 def starting_state():
     """ this is a function to evaluate the initial state of FEL in simulation"""
     # initialize all state variables
-    state = State()
+    state = States()
 
     # Starting FEL
     future_event_list = list()
