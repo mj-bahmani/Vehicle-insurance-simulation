@@ -294,7 +294,7 @@ def simulation():
                 pass
             pass
         future_event_list.remove(current_event)
-        id += 1
+
     print('done')
 def sample_exponential(lambda_val):
     """this is a function to sample from an exponential distribution with
@@ -333,7 +333,3 @@ def convert_to_hour(time):
 
 simulation()
 
-s = 0
-for i in range(1000000):
-    s += sample_triangular(5,6,7)
-print(s/1000000)
