@@ -1,4 +1,4 @@
-class state:
+class States:
 
     def __init__(self,Length_Service_Photographer=0, Length_Service_Expert1=0, Length_Service_Expert2=0,
                  Length_Service_Expert3=0, Length_Queue_Parking=0, Length_Queue_OutSide=0,
