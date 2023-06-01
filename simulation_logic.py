@@ -12,7 +12,6 @@ def starting_state():
     # initialize all state variables
     state = States()
 
-    # Starting FEL
     future_event_list = list()
 
     r = random.random()
@@ -40,10 +39,11 @@ def simulation():
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
         if convert_to_hour(clock) > 18:
             pass
-        if id >30:
-            break
-        current_event = sorted_fel[0]  # Find imminent event
 
+        try:
+            current_event = sorted_fel[0]  # Find imminent event
+        except:
+            pass
 
         Event_Type = current_event['Event Type']
         clock = current_event['Event Time']  # Advance time
@@ -91,7 +91,7 @@ def simulation():
                 customer = state.waiting_Queue_Photography.pop(0)
                 if state.Length_Queue_Parking == 0:
 
-                    future_event_list.append({'Event Type': 'OIN', 'id' : state.waiting_Queue_OutSide[0]['id'], 'Event Time': clock })
+                    future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
 
                 else:
                     state.Length_Queue_Photography += 1
@@ -229,55 +229,55 @@ def simulation():
 
         elif Event_Type == 'PA':
 
-            if current_event['first car id'] not in state.alone_cars_in_parking_id:
+            if current_event['id'] not in state.alone_cars_in_parking_id:
                 for car in state.waiting_Queue_OutSide:
-                    if car['id'] == current_event['first car id']:
+                    if car['id'] == current_event['id']:
                         car['alone'] = 0
                         break
 
 
             else:
-                temp = False
-                state.alone_cars_in_parking_id.remove(current_event['first car id'])
+
+                state.alone_cars_in_parking_id.remove(current_event['id'])
+
+
                 for car in state.waiting_Waiting_Parking:
-                    if car['id'] == current_event['first car id']:
-                        temp = car
-                        state.waiting_Waiting_Parking.remove(temp)
+                    if car['id'] == current_event['id']:
+
+                        state.waiting_Waiting_Parking.remove(car)
                         state.Length_Waiting_Parking -= 1
-                        temp['alone'] = 0
-                        temp = True
                         break
 
                 if state.Length_Service_Photographer == 2:
 
                     if state.Length_Queue_Photography == 20:
                         state.Length_Queue_Parking += 1
-                        state.waiting_Queue_Parking.append(current_event)
+                        state.waiting_Queue_Parking.append({'id':current_event['id']})
 
                     else:
                         state.Length_Queue_Photography += 1
-                        state.waiting_Queue_Photography.append(current_event)
+                        state.waiting_Queue_Photography.append({'id':current_event['id']})
                 else:
                     state.Length_Service_Photographer += 1
-                    future_event_list.append({'Event Type': 'DP', 'Event Time': clock + sample_exponential(1/6)})
+                    future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
+
         elif Event_Type == 'OIN':
-            if convert_to_hour(clock) < 18:
+            if clock < 600:
                 if state.Length_Queue_OutSide > 0:
-                    car = state.waiting_Queue_OutSide.pop(0)
+                    customer = state.waiting_Queue_OutSide.pop(0)
                     state.Length_Queue_OutSide -= 1
 
-                    if car['alone'] == 0:
+                    if customer['alone'] == 0  :
                         state.Length_Queue_Photography += 1
-                        state.waiting_Queue_Photography.append(car)
-
+                        state.waiting_Queue_Photography.append({'id':customer['id']})
                     else:
                         state.Length_Waiting_Parking += 1
-                        state.waiting_Waiting_Parking.append(car)
+                        state.waiting_Waiting_Parking.append({'id':customer['id'],'alone':1})
 
 
-                        state.alone_cars_in_parking_id.append(car['id'])
+                        state.alone_cars_in_parking_id.append(customer['id'])
 
-                        future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
+                        future_event_list.append({'Event Type': 'OIN','Event Time': clock })
 
                 else:
                     pass
@@ -300,8 +300,8 @@ def simulation():
             else:
                 pass
             pass
-        print(state,'\n\n')
-        print(sorted_fel,)
+        # print(state,'\n\n')
+        # print(sorted_fel,)
         future_event_list.remove(current_event)
 
     print('done')
