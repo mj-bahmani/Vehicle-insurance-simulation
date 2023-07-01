@@ -1,17 +1,20 @@
 
-
+import pandas as pd
 class handleOutput:
     def __init__(self):
         self.arrive_time = {}
         self.depart_time = {}
         self.remainSystem = 0
 
+
+
+
         self.SPhL = 0  #photo
         self.SOL = 0  #outside
         self.SSCL = 0    #submiting complaint
         self.SEL = 0    #expert
         self.EFQT = 0   # filing empty time
-        self.EWPT = 0  #waiting parking
+        self.EQPT = 0  #waiting parking
 
         self.MPhL = 0  # photo
         self.MOL = 0  # outside
@@ -37,17 +40,26 @@ class handleOutput:
         self.SExpertCenter = 0
         self.SComplaintCenter = 0
 
+        column_names = ["Time", "Event", 'Length_Service_Photographer', 'Length_Service_Expert1',
+                        'Length_Service_Expert2',
+                        'Length_Service_Expert3', 'Length_Queue_Parking', 'Length_Queue_OutSide',
+                        'Length_Queue_Photography',
+                        'Length_Queue_Filing', 'Length_Queue_Complete_the_case', 'Length_Queue_Expert',
+                        'Length_Queue_Submitting_Complaint', 'Length_Waiting_Parking','SPHL','SOL','SSCL','SEL','EFQT','EQPT',
+                        'MPhL','MOL','MSCL','MEL','SPhCenter','SFilingCenter','SExpertCenter','SComplaintCenter']
+        self.df = pd.DataFrame(columns=column_names)
         self.clockPhotography = 0
         self.clockOutside = 0
         self.clockSubmitting = 0
         self.clockExpert = 0
         self.clockFiling = 0
-        self.clockWaiting = 0
+        self.clockQueueParking = 0
 
         self.clockService_Photographer = 0
         self.clockExpert1 = 0
         self.clockExpert2 = 0
         self.clockExpert3 = 0
+
     def update_photography_surface(self,clock,state):
         self.SPhL += (clock - self.clockPhotography) * state.Length_Queue_Photography
         self.clockPhotography = clock
@@ -76,10 +88,10 @@ class handleOutput:
             self.EFQT += (clock - self.clockFiling)
         self.clockFiling = clock
 
-    def update_waiting_empty(self,clock,state):
-        if state.Length_Waiting_Parking == 0:
-            self.EWPT += (clock - self.clockWaiting)
-        self.clockWaiting = clock
+    def update_queue_parking_empty(self,clock,state):
+        if state.Length_Queue_Parking == 0:
+            self.EQPT += (clock - self.clockQueueParking)
+        self.clockQueueParking = clock
 
     def update_Service_Photographer_surface(self,clock,state):
         self.SPhCenter += (clock - self.clockService_Photographer) * state.Length_Service_Photographer
@@ -93,6 +105,10 @@ class handleOutput:
     def update_Expert3_surface(self,clock,state):
         self.SComplaintCenter += (clock - self.clockExpert3) * state.Length_Service_Expert3
         self.clockExpert3 = clock
+    def add_row_df(self, data):
+        self.df.loc[self.df.shape[0]] = data
+    def save_df(self):
+        self.df.to_csv("output.csv", index=False)
 
 
 
