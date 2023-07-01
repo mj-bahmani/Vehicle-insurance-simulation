@@ -42,7 +42,7 @@ def simulation():
             pass
         if clock > 480:
             pass
-        if clock > 540:
+        if clock > 600:
             pass
 
         try:
@@ -66,6 +66,7 @@ def simulation():
                         else:
                             handler.update_photography_surface(clock,state)
                             state.Length_Queue_Photography += 1
+                            handler.arivingPhQ[current_event['id']] = clock
                             state.waiting_Queue_Photography.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 0, })
 
@@ -86,7 +87,7 @@ def simulation():
                         future_event_list.append({'Event Type': 'PA', 'id':current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
 
                     else:
-                        handler.update_waiting_surface(clock,state)
+                        handler.update_waiting_empty(clock,state)
 
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
@@ -109,6 +110,7 @@ def simulation():
                 handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
+                handler.departPhQ[customer['id']] = clock
                 ###############################phy
                 if state.Length_Queue_Parking == 0:
 
@@ -117,6 +119,7 @@ def simulation():
                 else:
                     handler.update_photography_surface(clock, state)
                     state.Length_Queue_Photography += 1
+                    handler.arivingPhQ[customer['id']] = clock
                     customer = state.waiting_Queue_Parking.pop(0)
                     state.waiting_Queue_Photography.append({'id': customer['id'], 'alone': 0 })
                     state.Length_Queue_Parking -= 1
@@ -134,13 +137,14 @@ def simulation():
                 handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
+                handler.departPhQ[customer['id']] = clock
                 #############################phy
                 future_event_list.append({'Event Type': 'DP','id': customer['id']  ,'Event Time': clock + sample_exponential(1/6)})
 
 
 
             if state.Length_Service_Expert1 == 3:
-                handler.update_filing_surface(clock,state)
+                handler.update_filing_empty(clock,state)
                 state.Length_Queue_Filing += 1
                 state.waiting_Queue_Filing.append({'id': current_event['id']})
 
@@ -153,7 +157,7 @@ def simulation():
                     state.Length_Service_Expert1 -= 1
 
                 else:
-                    handler.update_filing_surface(clock, state)
+                    handler.update_filing_empty(clock, state)
 
                     state.Length_Queue_Filing -= 1
                     customer = state.waiting_Queue_Filing.pop(0)
@@ -186,7 +190,7 @@ def simulation():
                     state.Length_Service_Expert1 -= 1
 
                 else:
-                    handler.update_filing_surface(clock, state)
+                    handler.update_filing_empty(clock, state)
 
                     state.Length_Queue_Filing -= 1
                     customer = state.waiting_Queue_Filing.pop(0)
@@ -283,7 +287,7 @@ def simulation():
 
                 for car in state.waiting_Waiting_Parking:
                     if car['id'] == current_event['id']:
-                        handler.update_waiting_surface(clock,state)
+                        handler.update_waiting_empty(clock,state)
                         state.waiting_Waiting_Parking.remove(car)
                         state.Length_Waiting_Parking -= 1
                         break
@@ -296,7 +300,9 @@ def simulation():
 
                     else:
                         handler.update_photography_surface(clock, state)
+                        handler.arivingPhQ[current_event['id']] = clock
                         state.Length_Queue_Photography += 1
+
                         state.waiting_Queue_Photography.append({'id':current_event['id']})
                         ##################################phy
                 else:
@@ -314,10 +320,11 @@ def simulation():
 
                     if customer['alone'] == 0  :
                         state.Length_Queue_Photography += 1
+                        handler.arivingPhQ[customer['id']] = clock
                         state.waiting_Queue_Photography.append({'id':customer['id']})
                         #####################################phy
                     else:
-                        handler.update_waiting_surface(clock,state)
+                        handler.update_waiting_empty(clock,state)
 
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id':customer['id'],'alone':1})

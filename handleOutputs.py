@@ -43,6 +43,7 @@ class handleOutput:
         self.clockExpert = 0
         self.clockFiling = 0
         self.clockWaiting = 0
+
         self.clockService_Photographer = 0
         self.clockExpert1 = 0
         self.clockExpert2 = 0
@@ -56,28 +57,28 @@ class handleOutput:
     def update_outside_surface(self,clock,state):
         self.SOL += (clock - self.clockOutside) * state.Length_Queue_OutSide
         self.clockOutside = clock
-        if state.Length_Queue_OutSide > self.MPhL:
+        if state.Length_Queue_OutSide > self.MOL:
             self.MOL = state.Length_Queue_OutSide
 
     def update_submiting_surface(self,clock,state):
         self.SSCL += (clock - self.clockSubmitting) * state.Length_Queue_Submitting_Complaint
         self.clockSubmitting = clock
-        if state.Length_Queue_Submitting_Complaint > self.MPhL:
+        if state.Length_Queue_Submitting_Complaint > self.MSCL:
             self.MSCL = state.Length_Queue_Submitting_Complaint
     def update_expert_surface(self,clock,state):
-        self.SOL += (clock - self.clockExpert) * state.Length_Queue_Expert
+        self.SEL += (clock - self.clockExpert) * state.Length_Queue_Expert
         self.clockExpert = clock
-        if state.Length_Queue_Expert > self.MPhL:
+        if state.Length_Queue_Expert > self.MEL:
             self.MEL = state.Length_Queue_Expert
 
     def update_filing_empty(self,clock,state):
         if state.Length_Queue_Filing == 0:
-            self.SOL += (clock - self.clockFiling)
+            self.EFQT += (clock - self.clockFiling)
         self.clockFiling = clock
 
     def update_waiting_empty(self,clock,state):
         if state.Length_Waiting_Parking == 0:
-            self.SOL += (clock - self.clockWaiting)
+            self.EWPT += (clock - self.clockWaiting)
         self.clockWaiting = clock
 
     def update_Service_Photographer_surface(self,clock,state):
