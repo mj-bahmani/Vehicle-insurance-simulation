@@ -5,6 +5,7 @@ import random
 import math
 
 from States import States
+from handleOutputs import handleOutput
 
 
 def starting_state():
@@ -30,14 +31,18 @@ def simulation():
     r = random.random()
     weather_condition = 'rainy' if r < 0.31 else 'sunny'
     clock = 0
-
+    handler = handleOutput()
     running = True
     id = 1
 
     while running:
 
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
-        if convert_to_hour(clock) > 18:
+        if clock > 420:
+            pass
+        if clock > 480:
+            pass
+        if clock > 540:
             pass
 
         try:
@@ -53,25 +58,36 @@ def simulation():
                 if current_event['alone'] == 0:
                     if state.Length_Service_Photographer == 2:
                         if state.Length_Queue_Photography == 20:
+                            handler.update_outside_surface(clock,state)
                             state.Length_Queue_OutSide += 1
                             state.waiting_Queue_OutSide.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 0 })
+
                         else:
+                            handler.update_photography_surface(clock,state)
                             state.Length_Queue_Photography += 1
                             state.waiting_Queue_Photography.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 0, })
+
+                            ##################### ph
                     else:
+                        handler.update_Service_Photographer_surface(clock, state)
+
                         state.Length_Service_Photographer += 1
 
                         future_event_list.append({'Event Type': 'DP', 'id' : current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
                 else:
                     if state.Length_Queue_Photography == 20:
+                        handler.update_outside_surface(clock, state)
+
                         state.Length_Queue_OutSide += 1
                         state.waiting_Queue_OutSide.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 1, })
                         future_event_list.append({'Event Type': 'PA', 'id':current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
 
                     else:
+                        handler.update_waiting_surface(clock,state)
+
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 1, })
@@ -80,39 +96,51 @@ def simulation():
                 r = random.random()
                 is_alone = 1 if r < 0.3 else 0
                 future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': id, 'Event Time': clock + sample_exponential(1/arrival_rate(weather_condition,clock,dataset))})
+
+                handler.arrive_time[current_event['id']] = clock
                 id += 1
                 #update cumulative statistics
             else:
+
                 #update the missing customers
                 pass
         elif Event_Type == 'DP':
             if state.Length_Queue_Photography == 20:
+                handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
+                ###############################phy
                 if state.Length_Queue_Parking == 0:
 
                     future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
 
                 else:
+                    handler.update_photography_surface(clock, state)
                     state.Length_Queue_Photography += 1
                     customer = state.waiting_Queue_Parking.pop(0)
                     state.waiting_Queue_Photography.append({'id': customer['id'], 'alone': 0 })
                     state.Length_Queue_Parking -= 1
+                    #####################phy
 
                 future_event_list.append({'Event Type': 'DP','id': customer['id'] ,'Event Time': clock + sample_exponential(1/6)})
 
 
             elif state.Length_Queue_Photography == 0:
+                handler.update_Service_Photographer_surface(clock, state)
+
                 state.Length_Service_Photographer -= 1
 
             else:
+                handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
+                #############################phy
                 future_event_list.append({'Event Type': 'DP','id': customer['id']  ,'Event Time': clock + sample_exponential(1/6)})
 
 
 
             if state.Length_Service_Expert1 == 3:
+                handler.update_filing_surface(clock,state)
                 state.Length_Queue_Filing += 1
                 state.waiting_Queue_Filing.append({'id': current_event['id']})
 
@@ -125,6 +153,8 @@ def simulation():
                     state.Length_Service_Expert1 -= 1
 
                 else:
+                    handler.update_filing_surface(clock, state)
+
                     state.Length_Queue_Filing -= 1
                     customer = state.waiting_Queue_Filing.pop(0)
                     future_event_list.append({'Event Type': 'DF','id': customer['id'], 'Event Time': clock + sample_triangular(5,7,6)})
@@ -135,6 +165,7 @@ def simulation():
                 future_event_list.append({'Event Type': 'DC','id': customer['id'] ,'Event Time': clock + sample_triangular(6,9,8)})
 
             if state.Length_Service_Expert2 == 2:
+                handler.update_expert_surface(clock, state)
                 state.Length_Queue_Expert += 1
                 r = random.random()
                 complaint = 1 if r < 0.1 else 0
@@ -148,11 +179,15 @@ def simulation():
                     {'Event Type': 'DE', 'complaint': complaint, 'id': current_event['id'], 'Event Time': clock + sample_exponential(1/9)})
 
         elif Event_Type == 'DC':
+            handler.depart_time[current_event['id']] = clock
+
             if state.Length_Queue_Complete_the_case == 0:
                 if state.Length_Queue_Filing == 0:
                     state.Length_Service_Expert1 -= 1
 
                 else:
+                    handler.update_filing_surface(clock, state)
+
                     state.Length_Queue_Filing -= 1
                     customer = state.waiting_Queue_Filing.pop(0)
                     future_event_list.append(
@@ -179,6 +214,7 @@ def simulation():
                 state.Length_Service_Expert2 -= 1
 
             else:
+                handler.update_expert_surface(clock, state)
                 state.Length_Queue_Expert -= 1
                 customer = state.waiting_Queue_Expert.pop(0)
                 future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + sample_exponential(1/9)})
@@ -202,6 +238,7 @@ def simulation():
 
 
                 else:
+                    handler.update_submiting_surface(clock,state)
                     state.Length_Queue_Submitting_Complaint += 1
                     state.waiting_Queue_Submitting_Complaint.append({'id':current_event['id']})
 
@@ -213,12 +250,15 @@ def simulation():
                 state.Length_Service_Expert3 -= 1
                 pass
             else:
+                handler.update_submiting_surface(clock, state)
+
                 state.Length_Queue_Submitting_Complaint -= 1
                 customer = state.waiting_Queue_Submitting_Complaint.pop(0)
                 future_event_list.append({'Event Type': 'DSC', 'id': customer['id'],'Event Time': clock + sample_exponential(1/15)})
                 pass
 
             if state.Length_Service_Expert2 == 2:
+                handler.update_expert_surface(clock,state)
                 state.Length_Queue_Expert += 1
                 state.waiting_Queue_Expert.append({'id':current_event['id'],'complaint': 0})
                 pass
@@ -243,7 +283,7 @@ def simulation():
 
                 for car in state.waiting_Waiting_Parking:
                     if car['id'] == current_event['id']:
-
+                        handler.update_waiting_surface(clock,state)
                         state.waiting_Waiting_Parking.remove(car)
                         state.Length_Waiting_Parking -= 1
                         break
@@ -255,22 +295,30 @@ def simulation():
                         state.waiting_Queue_Parking.append({'id':current_event['id']})
 
                     else:
+                        handler.update_photography_surface(clock, state)
                         state.Length_Queue_Photography += 1
                         state.waiting_Queue_Photography.append({'id':current_event['id']})
+                        ##################################phy
                 else:
+                    handler.update_Service_Photographer_surface(clock,state)
                     state.Length_Service_Photographer += 1
                     future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
 
         elif Event_Type == 'OIN':
             if clock < 600:
                 if state.Length_Queue_OutSide > 0:
+                    handler.update_outside_surface(clock, state)
+
                     customer = state.waiting_Queue_OutSide.pop(0)
                     state.Length_Queue_OutSide -= 1
 
                     if customer['alone'] == 0  :
                         state.Length_Queue_Photography += 1
                         state.waiting_Queue_Photography.append({'id':customer['id']})
+                        #####################################phy
                     else:
+                        handler.update_waiting_surface(clock,state)
+
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id':customer['id'],'alone':1})
 
@@ -282,7 +330,10 @@ def simulation():
                 else:
                     pass
             else:
+                handler.update_outside_surface(clock, state)
+
                 state.Length_Queue_OutSide = 0
+
                 state.waiting_Queue_OutSide.clear()
 
         elif Event_Type == 'ISEND':

@@ -31,6 +31,13 @@ class States:
         self.waiting_Queue_Expert = []
         self.waiting_Queue_Submitting_Complaint = []
         self.waiting_Waiting_Parking = []
+    def __str__(self):
+        return f'Length_Service_Photographer : {self.Length_Service_Photographer}, Length_Service_Expert1: {self.Length_Service_Expert1},\n' \
+               f'Length_Service_Expert2 : {self.Length_Service_Expert2}, Length_Service_Expert3 : {self.Length_Service_Expert2}, Length_Queue_Parking: {self.Length_Queue_Parking}' \
+               f'Length_Queue_OutSide : {self.Length_Queue_OutSide}, Length_Queue_Photography : {self.Length_Queue_Photography}\n' \
+               f'Length_Queue_Filing : {self.Length_Queue_Filing}, Length_Queue_Complete_the_case : {self.Length_Queue_Complete_the_case}' \
+               f'Length_Queue_Expert : {self.Length_Queue_Expert}, Length_Queue_Submitting_Complaint: {self.Length_Queue_Submitting_Complaint}\n' \
+               f'Length_Waiting_Parking : {self.Length_Waiting_Parking}, alone_cars_in_parking_id: {self.alone_cars_in_parking_id} '
 
 
 
