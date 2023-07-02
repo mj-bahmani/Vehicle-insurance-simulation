@@ -24,6 +24,7 @@ class States:
         self.noSubmitComplaint = 0
 
 
+
         self.waiting_Queue_Parking = []
         self.waiting_Queue_OutSide = []
         self.waiting_Queue_Photography = []

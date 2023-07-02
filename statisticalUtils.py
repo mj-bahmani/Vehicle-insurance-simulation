@@ -29,7 +29,35 @@ class statistics:
         self.mean_in_outside = []
         self.mean_in_SCL = []
         self.mean_in_EL =[]
-
+        self.MWPL = []
+        self.PASC = []
+        self.processdata = {
+                         'remain_system': [],
+                         'APhL': [],
+                         'AOL': [],
+                         'ASCL': [],
+                         'AEL': [],
+                         'PEFQT': [],
+                         'PEQPT': [],
+                         'APhCenter': [],
+                         'AFilingCenter': [],
+                         'AExpertCenter': [],
+                         'AComplaintCenter': [],
+                         'maxTimePhQ': [],
+                         'maxTimeOQ': [],
+                         'maxSCL': [],
+                         'maxEl': [],
+                         'mean_in_PHQ': [],
+                         'mean_in_outside': [],
+                         'mean_in_SCL': [],
+                         'MPhL': [],
+                         'MOL': [],
+                         'MSCL': [],
+                         'MEL': [],
+                        'mean_in_EL':[],
+                        'MWPL':[],
+                        'PASC':[]
+                        }
         pass
     def add_static(self,data):
         self.remain_system.append(data[0])
@@ -54,6 +82,9 @@ class statistics:
         self.MOL.append(data[19])
         self.MSCL.append(data[20])
         self.MEL.append(data[21])
+        self.mean_in_EL.append(data[22])
+        self.MWPL.append(data[23])
+        self.PASC.append(data[24])
 
 
 
@@ -80,11 +111,33 @@ class statistics:
             'MPhL': np.array(self.MPhL),
             'MOL': np.array(self.MOL),
             'MSCL': np.array(self.MSCL),
-            'MEL': np.array(self.MEL)
+            'MEL': np.array(self.MEL),
+            'mean_in_EL': np.array(self.mean_in_EL),
+            'MWPL': np.array(self.MWPL),
+            'PASC': np.array(self.PASC)
+
         }
+        mean_dict = {}
 
         for var_name, var_data in data_dict.items():
             mean = np.mean(var_data)
-            sem = stats.sem(var_data)
-            ci = stats.t.interval(0.95, len(var_data) - 1, loc=mean, scale=sem)
-            print(f"For {var_name}: Mean = {mean}, 95% Confidence Interval = {ci}")
+            mean_dict[var_name] = mean
+        return mean_dict
+
+    def add_for_confidence_interval(self,mean_dict):
+
+
+        # Iterate over items in mean_dict
+        for key, value in mean_dict.items():
+
+            # Add each item to processed_data
+            # (Replace 'process_value(value)' with your actual data processing)
+            self.processdata[key].append(mean_dict[key])
+    def compute_confidence_interval(self):
+        for key, values in self.processdata.items():
+            if values:  # If the list is not empty
+                mean = np.mean(values)
+                sem = stats.sem(values)
+                ci = stats.t.interval(0.95, len(values) - 1, loc=mean, scale=sem)
+
+                print(f"For {key}: Mean = {mean}, 95% Confidence Interval = {ci}")

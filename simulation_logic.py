@@ -42,17 +42,10 @@ def simulation(printoutput = True):
     while running:
 
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
-        if clock > 420:
-            pass
-        if clock > 480:
-            pass
-        if clock > 600:
-            pass
 
-        try:
-            current_event = sorted_fel[0]  # Find imminent event
-        except:
-            pass
+
+        current_event = sorted_fel[0]  # Find imminent event
+
         a = current_event['id'] if 'id' in current_event.keys() else ''
 
         handler.add_row_df([current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
@@ -66,7 +59,8 @@ def simulation(printoutput = True):
         Event_Type = current_event['Event Type']
         clock = current_event['Event Time']  # Advance time
         if Event_Type == 'A':
-
+            if current_event['alone'] == 1:
+                handler.alone_cars.append(current_event['id'])
             if clock < 600:
                 if current_event['alone'] == 0:
                     if state.Length_Service_Photographer == 2:
@@ -102,7 +96,7 @@ def simulation(printoutput = True):
 
                     else:
 
-
+                        handler.update_waiting_parking(state)
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 1, })
@@ -189,7 +183,10 @@ def simulation(printoutput = True):
             if state.Length_Service_Expert2 == 2:
                 handler.update_expert_surface(clock, state)
                 state.Length_Queue_Expert += 1
-                handler.arivingEL[current_event['id']] = clock
+                if current_event['id'] in handler.arivingEL.keys():
+                    handler.arivingEL2[current_event['id']] = clock
+                else:
+                    handler.arivingEL[current_event['id']] = clock
                 r = random.random()
                 complaint = 1 if r < 0.1 else 0
                 state.waiting_Queue_Expert.append({'id':current_event['id'],'complaint':complaint})
@@ -244,8 +241,12 @@ def simulation(printoutput = True):
             else:
                 handler.update_expert_surface(clock, state)
                 state.Length_Queue_Expert -= 1
+
                 customer = state.waiting_Queue_Expert.pop(0)
-                handler.departEL[customer['id']] = clock
+                if customer['id'] in handler.departEL.keys():
+                    handler.departEL2[customer['id']] = clock
+                else:
+                    handler.departEL[customer['id']] = clock
                 future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + sample_exponential(1/9)})
 
             if current_event['complaint'] == 0:
@@ -278,6 +279,8 @@ def simulation(printoutput = True):
 
             pass
         elif Event_Type == 'DSC':
+            if current_event['id'] in handler.alone_cars:
+                handler.alone_submited_complaint += 1
             state.noSubmitComplaint += 1
             if state.Length_Queue_Submitting_Complaint == 0:
                 handler.update_Expert3_surface(clock, state)
@@ -295,7 +298,10 @@ def simulation(printoutput = True):
             if state.Length_Service_Expert2 == 2:
                 handler.update_expert_surface(clock,state)
                 state.Length_Queue_Expert += 1
-                handler.arivingEL[current_event['id']] = clock
+                if current_event['id'] in handler.arivingEL.keys():
+                    handler.arivingEL2[current_event['id']] = clock
+                else:
+                    handler.arivingEL[current_event['id']] = clock
                 state.waiting_Queue_Expert.append({'id':current_event['id'],'complaint': 0})
                 pass
             else:
@@ -320,7 +326,7 @@ def simulation(printoutput = True):
 
                 for car in state.waiting_Waiting_Parking:
                     if car['id'] == current_event['id']:
-
+                        handler.update_waiting_parking(state)
                         state.waiting_Waiting_Parking.remove(car)
                         state.Length_Waiting_Parking -= 1
                         break
@@ -361,7 +367,7 @@ def simulation(printoutput = True):
 
                     else:
 
-
+                        handler.update_waiting_parking(state)
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id':customer['id'],'alone':1})
 
@@ -454,16 +460,31 @@ def convert_to_hour(time):
 
 
 
-noreplication = 10
+
+
 statutil = statisticalUtils.statistics()
-for i in range(noreplication):
-    if noreplication == 1:
-        simulation()
-        break
-    else:
-        print(f'replication {i+1}')
-        l = simulation(printoutput=False)
-        statutil.add_static(l)
-if noreplication > 1:
-    statutil.find_statistic()
+def runsimul(st):
+    noreplication = 5
+
+
+    for i in range(noreplication):
+        if noreplication == 1:
+            break
+        else:
+            print(f'replication {i + 1}')
+            l = simulation(printoutput=False)
+            statutil.add_static(l)
+
+    data = statutil.find_statistic()
+    return data
+
+
+num = 2
+
+for j in range(num):
+    data = runsimul(statutil)
+    statutil.add_for_confidence_interval(data)
+statutil.compute_confidence_interval()
+
+
 

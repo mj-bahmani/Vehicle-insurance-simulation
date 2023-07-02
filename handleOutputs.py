@@ -20,6 +20,7 @@ class handleOutput:
         self.MOL = 0  # outside
         self.MSCL = 0  # submiting complaint
         self.MEL = 0  # expert
+        self.MWPL = 0  # waiting parking
 
         self.arivingPhQ = {}
         self.departPhQ = {}
@@ -29,6 +30,9 @@ class handleOutput:
         self.departSCL = {}
         self.arivingEL = {}
         self.departEL = {}
+
+        self.arivingEL2 = {}
+        self.departEL2 = {}
 
         self.maxTimePhQ = -1
         self.maxTimeOQ = -1
@@ -60,6 +64,9 @@ class handleOutput:
         self.clockExpert1 = 0
         self.clockExpert2 = 0
         self.clockExpert3 = 0
+
+        self.alone_cars = []
+        self.alone_submited_complaint = 0
 
     def update_photography_surface(self,clock,state):
         self.SPhL += (clock - self.clockPhotography) * state.Length_Queue_Photography
@@ -106,6 +113,10 @@ class handleOutput:
     def update_Expert3_surface(self,clock,state):
         self.SComplaintCenter += (clock - self.clockExpert3) * state.Length_Service_Expert3
         self.clockExpert3 = clock
+    def update_waiting_parking(self,state):
+        if state.Length_Waiting_Parking > self.MWPL:
+            self.MWPL = state.Length_Waiting_Parking
+
     def add_row_df(self, data):
         self.df.loc[self.df.shape[0]] = data
     def save_df(self):
@@ -118,6 +129,7 @@ class handleOutput:
         s = 0
         for i in remainingtime:
             s += i
+
 
 
         time_in_PhQ = []
@@ -149,15 +161,23 @@ class handleOutput:
                 max_SCL = self.departSCL[k] - self.arivingSCL[k]
 
         for k in self.arivingEL.keys():
+
             time_in_El.append(self.departEL[k] - self.arivingEL[k])
             if self.departEL[k] - self.arivingEL[k]> max_El:
                 max_El = self.departEL[k] - self.arivingEL[k]
+
+        for k in self.arivingEL2.keys():
+
+            time_in_El.append(self.departEL2[k] - self.arivingEL2[k])
+            if self.departEL2[k] - self.arivingEL2[k] > max_El:
+                max_El = self.departEL2[k] - self.arivingEL2[k]
 
 
         sum_phQ = 0
         sum_OQ = 0
         sum_SCL = 0
         sum_El = 0
+
 
         for i in time_in_PhQ:
             sum_phQ += i
@@ -169,7 +189,8 @@ class handleOutput:
             sum_El += i
 
 
-        # print(f'the mean time a customer waited in the expert queue is: {sum_El/(state.noExpert)}')
+
+
         if printout:
             print(f'the mean of remaining time in system is: {s / len(remainingtime)}')
             print(f'the average length of photography queue is: {self.SPhL / clock}')
@@ -198,13 +219,15 @@ class handleOutput:
             print(f'the mean time a customer waited in the outside queue is: {sum_OQ / (id + 1)}')
             print(
                 f'the mean time a customer waited in the submiting the complaint queue is: {sum_SCL / (state.noSubmitComplaint)}')
-            print(state.noSubmitComplaint)
+            print(f'the mean time a customer waited in the expert queue is: {sum_El/(last_id+1+len(self.arivingEL2.keys()))}')
+
         else:
+
             return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
                 self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(2*clock),\
                 self.SFilingCenter/(3*clock),self.SExpertCenter/(2*clock),self.SComplaintCenter/(clock),\
                 max_phQ,max_OQ,max_SCL,max_El,sum_phQ/(last_id + 1),sum_OQ/(id+1),\
-                sum_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL]
+                sum_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,sum_El/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
 
 
 
