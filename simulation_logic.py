@@ -23,7 +23,7 @@ def starting_state():
 
     return state, future_event_list
 
-def simulation(printoutput = True):
+def simulation(outputExcel=True):
     """ This is the main function of simulation that handles the modifications that each event notice
     applies on the state valriables
     """
@@ -48,13 +48,14 @@ def simulation(printoutput = True):
 
         a = current_event['id'] if 'id' in current_event.keys() else ''
 
-        handler.add_row_df([current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
-                            state.Length_Service_Expert2, state.Length_Service_Expert3,
-                            state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
-                            state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
-                            state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
-                            handler.EFQT, handler.EQPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
-                            , handler.SExpertCenter, handler.SComplaintCenter, sorted_fel])
+        if outputExcel:
+            handler.add_row_df([current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
+                                state.Length_Service_Expert2, state.Length_Service_Expert3,
+                                state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
+                                state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
+                                state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
+                                handler.EFQT, handler.EQPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
+                                , handler.SExpertCenter, handler.SComplaintCenter, sorted_fel])
 
         Event_Type = current_event['Event Type']
         clock = current_event['Event Time']  # Advance time
@@ -416,11 +417,12 @@ def simulation(printoutput = True):
 
 
         future_event_list.remove(current_event)
-    if printoutput:
-        handler.print_outputs(clock,last_id_inside, id, state)
+    if outputExcel:
         handler.save_df()
+        return  handler.print_outputs(clock,last_id_inside, id, state)
+
     else:
-        return handler.print_outputs(clock,last_id_inside, id, state, printoutput)
+        return handler.print_outputs(clock,last_id_inside, id, state)
 
     print('done')
 def sample_exponential(lambda_val):
@@ -463,26 +465,23 @@ def convert_to_hour(time):
 
 
 statutil = statisticalUtils.statistics()
-def runsimul(st):
-    noreplication = 5
-
-
+getoutput = True
+def runsimul(noreplication):
+    global getoutput
     for i in range(noreplication):
-        if noreplication == 1:
-            break
-        else:
-            print(f'replication {i + 1}')
-            l = simulation(printoutput=False)
-            statutil.add_static(l)
+        print(f'replication {i + 1}')
+        l = simulation(getoutput)
+        getoutput = False
+        statutil.add_static(l)
 
     data = statutil.find_statistic()
     return data
 
 
-num = 20
-
+num = 1
+noreplication = 1
 for j in range(num):
-    data = runsimul(statutil)
+    data = runsimul(noreplication)
     statutil.add_for_confidence_interval(data)
 statutil.compute_confidence_interval()
 

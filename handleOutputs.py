@@ -121,7 +121,7 @@ class handleOutput:
         self.df.loc[self.df.shape[0]] = data
     def save_df(self):
         self.df.to_csv("output.csv", index=False)
-    def print_outputs(self,clock,last_id,id,state,printout):
+    def print_outputs(self,clock,last_id,id,state):
         remainingtime = []
         for k in self.arrive_time.keys():
             if k  in self.depart_time:
@@ -191,43 +191,12 @@ class handleOutput:
 
 
 
-        if printout:
-            print(f'the mean of remaining time in system is: {s / len(remainingtime)}')
-            print(f'the average length of photography queue is: {self.SPhL / clock}')
-            print(f'the average length of outside  queue is: {self.SOL / 600}')
-            print(f'the average length of submiting complaint queue is: {self.SSCL / clock}')
-            print(f'the average length of expert queue is: {self.SEL / clock}')
-            print(f'the probability that filing the case queue being empty is: {self.EFQT / clock}')
-            print(f'the probability that waiting parking queue being empty is: {self.EQPT / clock}')
 
-            print(f'the maximum length of photography queue  is: {self.MPhL}')
-            print(f'the maximum length of outside queue  is: {self.MOL}')
-            print(f'the maximum length of submiting the complaint queue  is: {self.MSCL}')
-            print(f'the maximum length of expert queue  is: {self.MEL}')
-
-            print(f'the yields of photography center is {self.SPhCenter / (2 * clock)}')
-            print(f'the yields of filing and completing the case center is {self.SFilingCenter / (3 * clock)}')
-            print(f'the yields of Expert center is {self.SExpertCenter / (2 * clock)}')
-            print(f'the yields of subniting complaint center is {self.SComplaintCenter / (clock)}')
-
-            print(f'the maximum time a customer waited in the photography queue is: {max_phQ}')
-            print(f'the maximum time a customer waited in the outside queue is: {max_OQ}')
-            print(f'the maximum time a customer waited in the submiting the complaint queue is: {max_SCL}')
-            print(f'the maximum time a customer waited in the expert queue is: {max_El}')
-
-            print(f'the mean time a customer waited in the photography queue is: {sum_phQ / (last_id + 1)}')
-            print(f'the mean time a customer waited in the outside queue is: {sum_OQ / (id + 1)}')
-            print(
-                f'the mean time a customer waited in the submiting the complaint queue is: {sum_SCL / (state.noSubmitComplaint)}')
-            print(f'the mean time a customer waited in the expert queue is: {sum_El/(last_id+1+len(self.arivingEL2.keys()))}')
-
-        else:
-
-            return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
-                self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(2*clock),\
-                self.SFilingCenter/(3*clock),self.SExpertCenter/(2*clock),self.SComplaintCenter/(clock),\
-                max_phQ,max_OQ,max_SCL,max_El,sum_phQ/(last_id + 1),sum_OQ/(id+1),\
-                sum_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,sum_El/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
+        return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
+            self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(2*clock),\
+            self.SFilingCenter/(3*clock),self.SExpertCenter/(2*clock),self.SComplaintCenter/(clock),\
+            max_phQ,max_OQ,max_SCL,max_El,sum_phQ/(last_id + 1),sum_OQ/(id+1),\
+            sum_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,sum_El/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
 
 
 
