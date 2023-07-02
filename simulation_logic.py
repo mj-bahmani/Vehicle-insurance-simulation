@@ -4,6 +4,7 @@ import pandas as pd
 import random
 import math
 
+import statisticalUtils
 from States import States
 from handleOutputs import handleOutput
 
@@ -22,7 +23,7 @@ def starting_state():
 
     return state, future_event_list
 
-def simulation():
+def simulation(printoutput = True):
     """ This is the main function of simulation that handles the modifications that each event notice
     applies on the state valriables
     """
@@ -30,10 +31,12 @@ def simulation():
     state, future_event_list = starting_state()
     r = random.random()
     weather_condition = 'rainy' if r < 0.31 else 'sunny'
+    print(f'the weather condition is {weather_condition}')
     clock = 0
     handler = handleOutput()
     running = True
     id = 1
+    last_id_inside = 0
     column_names = ["", "Event", "State"]
     i = 0
     while running:
@@ -50,13 +53,15 @@ def simulation():
             current_event = sorted_fel[0]  # Find imminent event
         except:
             pass
-        handler.add_row_df([current_event['Event Time'], current_event['Event Type'],state.Length_Service_Photographer,state.Length_Service_Expert1,
+        a = current_event['id'] if 'id' in current_event.keys() else ''
+
+        handler.add_row_df([current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
                             state.Length_Service_Expert2, state.Length_Service_Expert3,
                             state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
                             state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
                             state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
                             handler.EFQT, handler.EQPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
-                            , handler.SExpertCenter, handler.SComplaintCenter])
+                            , handler.SExpertCenter, handler.SComplaintCenter, sorted_fel])
 
         Event_Type = current_event['Event Type']
         clock = current_event['Event Time']  # Advance time
@@ -115,6 +120,7 @@ def simulation():
                 #update the missing customers
                 pass
         elif Event_Type == 'DP':
+
             if state.Length_Queue_Photography == 20:
                 handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
@@ -197,6 +203,8 @@ def simulation():
                     {'Event Type': 'DE', 'complaint': complaint, 'id': current_event['id'], 'Event Time': clock + sample_exponential(1/9)})
 
         elif Event_Type == 'DC':
+            if current_event['id'] >  last_id_inside:
+                last_id_inside = current_event['id']
             handler.depart_time[current_event['id']] = clock
 
             if state.Length_Queue_Complete_the_case == 0:
@@ -270,6 +278,7 @@ def simulation():
 
             pass
         elif Event_Type == 'DSC':
+            state.noSubmitComplaint += 1
             if state.Length_Queue_Submitting_Complaint == 0:
                 handler.update_Expert3_surface(clock, state)
                 state.Length_Service_Expert3 -= 1
@@ -279,7 +288,7 @@ def simulation():
 
                 state.Length_Queue_Submitting_Complaint -= 1
                 customer = state.waiting_Queue_Submitting_Complaint.pop(0)
-                handler.departSCL[current_event['id']] = clock
+                handler.departSCL[customer['id']] = clock
                 future_event_list.append({'Event Type': 'DSC', 'id': customer['id'],'Event Time': clock + sample_exponential(1/15)})
                 pass
 
@@ -365,6 +374,8 @@ def simulation():
                     pass
             else:
                 handler.update_outside_surface(clock, state)
+                for pair in state.waiting_Queue_OutSide:
+                    handler.departOQ[pair['id']] = 600
 
                 state.Length_Queue_OutSide = 0
 
@@ -399,7 +410,12 @@ def simulation():
 
 
         future_event_list.remove(current_event)
-    handler.save_df()
+    if printoutput:
+        handler.print_outputs(clock,last_id_inside, id, state)
+        handler.save_df()
+    else:
+        return handler.print_outputs(clock,last_id_inside, id, state, printoutput)
+
     print('done')
 def sample_exponential(lambda_val):
     """this is a function to sample from an exponential distribution with
@@ -436,4 +452,18 @@ def arrival_rate(weather_condition, time, dataset):
 def convert_to_hour(time):
     return 8 + time/60
 
-simulation()
+
+
+noreplication = 10
+statutil = statisticalUtils.statistics()
+for i in range(noreplication):
+    if noreplication == 1:
+        simulation()
+        break
+    else:
+        print(f'replication {i+1}')
+        l = simulation(printoutput=False)
+        statutil.add_static(l)
+if noreplication > 1:
+    statutil.find_statistic()
+
