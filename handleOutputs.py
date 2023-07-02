@@ -1,5 +1,9 @@
 
 import pandas as pd
+
+import System
+
+
 class handleOutput:
     def __init__(self):
         self.arrive_time = {}
@@ -7,7 +11,7 @@ class handleOutput:
         self.remainSystem = 0
 
 
-
+        self.system = System.System()
 
         self.SPhL = 0  #photo
         self.SOL = 0  #outside
@@ -193,8 +197,8 @@ class handleOutput:
 
 
         return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
-            self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(2*clock),\
-            self.SFilingCenter/(3*clock),self.SExpertCenter/(2*clock),self.SComplaintCenter/(clock),\
+            self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
+            self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\
             max_phQ,max_OQ,max_SCL,max_El,sum_phQ/(last_id + 1),sum_OQ/(id+1),\
             sum_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,sum_El/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
 
