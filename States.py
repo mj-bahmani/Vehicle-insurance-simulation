@@ -21,6 +21,7 @@ class States:
         self.Length_Queue_Submitting_Complaint = Length_Queue_Submitting_Complaint
         self.Length_Waiting_Parking = Length_Waiting_Parking
         self.alone_cars_in_parking_id = []
+        self.noSubmitComplaint = 0
 
 
         self.waiting_Queue_Parking = []
