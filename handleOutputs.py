@@ -40,13 +40,14 @@ class handleOutput:
         self.SExpertCenter = 0
         self.SComplaintCenter = 0
 
-        column_names = ["Time", "Event", 'Length_Service_Photographer', 'Length_Service_Expert1',
+        column_names = ["Time", "Event","id", 'Length_Service_Photographer', 'Length_Service_Expert1',
                         'Length_Service_Expert2',
                         'Length_Service_Expert3', 'Length_Queue_Parking', 'Length_Queue_OutSide',
                         'Length_Queue_Photography',
                         'Length_Queue_Filing', 'Length_Queue_Complete_the_case', 'Length_Queue_Expert',
                         'Length_Queue_Submitting_Complaint', 'Length_Waiting_Parking','SPHL','SOL','SSCL','SEL','EFQT','EQPT',
-                        'MPhL','MOL','MSCL','MEL','SPhCenter','SFilingCenter','SExpertCenter','SComplaintCenter']
+                        'MPhL','MOL','MSCL','MEL','SPhCenter','SFilingCenter','SExpertCenter','SComplaintCenter','future event list']
+
         self.df = pd.DataFrame(columns=column_names)
         self.clockPhotography = 0
         self.clockOutside = 0
@@ -109,6 +110,121 @@ class handleOutput:
         self.df.loc[self.df.shape[0]] = data
     def save_df(self):
         self.df.to_csv("output.csv", index=False)
+    def print_outputs(self,clock,last_id,id,state,printout):
+        remainingtime = []
+        for k in self.arrive_time.keys():
+            if k  in self.depart_time:
+                remainingtime.append(self.depart_time[k]-self.arrive_time[k])
+        s = 0
+        for i in remainingtime:
+            s += i
+
+
+        time_in_PhQ = []
+        time_in_OQ = []
+        time_in_SCL = []
+        time_in_El = []
+
+
+
+        max_phQ = 0
+        max_OQ = 0
+        max_SCL = 0
+        max_El = 0
+
+        for k in self.arivingPhQ.keys():
+            time_in_PhQ.append(self.departPhQ[k] - self.arivingPhQ[k])
+            if self.departPhQ[k] - self.arivingPhQ[k]> max_phQ:
+                max_phQ = self.departPhQ[k] - self.arivingPhQ[k]
+
+        for k in self.arivingOQ.keys():
+            a = self.departOQ[k] - self.arivingOQ[k]
+            time_in_OQ.append(a)
+            if a > max_OQ :
+                max_OQ = a
+
+        for k in self.arivingSCL.keys():
+            time_in_SCL.append(self.departSCL[k] - self.arivingSCL[k])
+            if self.departSCL[k] - self.arivingSCL[k]> max_SCL:
+                max_SCL = self.departSCL[k] - self.arivingSCL[k]
+
+        for k in self.arivingEL.keys():
+            time_in_El.append(self.departEL[k] - self.arivingEL[k])
+            if self.departEL[k] - self.arivingEL[k]> max_El:
+                max_El = self.departEL[k] - self.arivingEL[k]
+
+
+        sum_phQ = 0
+        sum_OQ = 0
+        sum_SCL = 0
+        sum_El = 0
+
+        for i in time_in_PhQ:
+            sum_phQ += i
+        for i in time_in_OQ:
+            sum_OQ += i
+        for i in time_in_SCL:
+            sum_SCL += i
+        for i in time_in_El:
+            sum_El += i
+
+
+        # print(f'the mean time a customer waited in the expert queue is: {sum_El/(state.noExpert)}')
+        if printout:
+            print(f'the mean of remaining time in system is: {s / len(remainingtime)}')
+            print(f'the average length of photography queue is: {self.SPhL / clock}')
+            print(f'the average length of outside  queue is: {self.SOL / 600}')
+            print(f'the average length of submiting complaint queue is: {self.SSCL / clock}')
+            print(f'the average length of expert queue is: {self.SEL / clock}')
+            print(f'the probability that filing the case queue being empty is: {self.EFQT / clock}')
+            print(f'the probability that waiting parking queue being empty is: {self.EQPT / clock}')
+
+            print(f'the maximum length of photography queue  is: {self.MPhL}')
+            print(f'the maximum length of outside queue  is: {self.MOL}')
+            print(f'the maximum length of submiting the complaint queue  is: {self.MSCL}')
+            print(f'the maximum length of expert queue  is: {self.MEL}')
+
+            print(f'the yields of photography center is {self.SPhCenter / (2 * clock)}')
+            print(f'the yields of filing and completing the case center is {self.SFilingCenter / (3 * clock)}')
+            print(f'the yields of Expert center is {self.SExpertCenter / (2 * clock)}')
+            print(f'the yields of subniting complaint center is {self.SComplaintCenter / (clock)}')
+
+            print(f'the maximum time a customer waited in the photography queue is: {max_phQ}')
+            print(f'the maximum time a customer waited in the outside queue is: {max_OQ}')
+            print(f'the maximum time a customer waited in the submiting the complaint queue is: {max_SCL}')
+            print(f'the maximum time a customer waited in the expert queue is: {max_El}')
+
+            print(f'the mean time a customer waited in the photography queue is: {sum_phQ / (last_id + 1)}')
+            print(f'the mean time a customer waited in the outside queue is: {sum_OQ / (id + 1)}')
+            print(
+                f'the mean time a customer waited in the submiting the complaint queue is: {sum_SCL / (state.noSubmitComplaint)}')
+            print(state.noSubmitComplaint)
+        else:
+            return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
+                self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(2*clock),\
+                self.SFilingCenter/(3*clock),self.SExpertCenter/(2*clock),self.SComplaintCenter/(clock),\
+                max_phQ,max_OQ,max_SCL,max_El,sum_phQ/(last_id + 1),sum_OQ/(id+1),\
+                sum_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
