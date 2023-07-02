@@ -479,7 +479,7 @@ def runsimul(st):
     return data
 
 
-num = 2
+num = 20
 
 for j in range(num):
     data = runsimul(statutil)
