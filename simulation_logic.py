@@ -5,6 +5,7 @@ import random
 import math
 
 import System
+import environmentDistribution
 import excelOutput
 import statisticalUtils
 from States import States
@@ -30,6 +31,7 @@ def simulation(outputExcel=True,excelsaver=None):
     applies on the state valriables
     """
     dataset = pd.read_csv('datasets/Arrival Rate.csv')
+    envparam = environmentDistribution.EnvironmentDist()
     state, future_event_list = starting_state()
     r = random.random()
     weather_condition = 'rainy' if r < 0.31 else 'sunny'
@@ -99,7 +101,7 @@ def simulation(outputExcel=True,excelsaver=None):
 
                         state.Length_Service_Photographer += 1
 
-                        future_event_list.append({'Event Type': 'DP', 'id' : current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
+                        future_event_list.append({'Event Type': 'DP', 'id' : current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Photography_service)})
                 else:
                     if state.Length_Queue_Photography == system.max_photography_queue_size:
                         # handler.update_outside_surface(clock, state)
@@ -107,7 +109,7 @@ def simulation(outputExcel=True,excelsaver=None):
                         state.Length_Queue_OutSide += 1
                         state.waiting_Queue_OutSide.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 1, })
-                        future_event_list.append({'Event Type': 'PA', 'id':current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
+                        future_event_list.append({'Event Type': 'PA', 'id':current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Single_car_waiting)})
 
                     else:
                         # handler.update_queue_parking_empty(clock,state)
@@ -116,7 +118,7 @@ def simulation(outputExcel=True,excelsaver=None):
                         state.waiting_Waiting_Parking.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 1, })
                         state.alone_cars_in_parking_id.append(current_event['id'])
-                        future_event_list.append({'Event Type': 'PA','id':current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
+                        future_event_list.append({'Event Type': 'PA','id':current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Single_car_waiting)})
                 r = random.random()
                 is_alone = 1 if r < 0.3 else 0
                 future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': id, 'Event Time': clock + sample_exponential(1/arrival_rate(weather_condition,clock,dataset))})
@@ -151,7 +153,7 @@ def simulation(outputExcel=True,excelsaver=None):
                     state.Length_Queue_Parking -= 1
 
 
-                future_event_list.append({'Event Type': 'DP','id': customer['id'] ,'Event Time': clock + sample_exponential(1/6)})
+                future_event_list.append({'Event Type': 'DP','id': customer['id'] ,'Event Time': clock + sample_exponential(1/envparam.Photography_service)})
 
 
             elif state.Length_Queue_Photography == 0:
@@ -166,7 +168,7 @@ def simulation(outputExcel=True,excelsaver=None):
                 handler.departPhQ[customer['id']] = clock
                 handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']])
 
-                future_event_list.append({'Event Type': 'DP','id': customer['id']  ,'Event Time': clock + sample_exponential(1/6)})
+                future_event_list.append({'Event Type': 'DP','id': customer['id']  ,'Event Time': clock + sample_exponential(1/envparam.Photography_service)})
 
 
 
@@ -178,7 +180,8 @@ def simulation(outputExcel=True,excelsaver=None):
             else:
                 # handler.update_Expert1_surface(clock, state)
                 state.Length_Service_Expert1 += 1
-                future_event_list.append({'Event Type': 'DF','id':current_event['id'], 'Event Time': clock + sample_triangular(5,7,6)})
+                future_event_list.append({'Event Type': 'DF','id':current_event['id'], 'Event Time': clock + sample_triangular(
+                    envparam.Filling_the_case_min,envparam.Filling_the_case_max,envparam.Filling_the_case_mode)})
         elif Event_Type == 'DF':
             if state.Length_Queue_Complete_the_case == 0:
                 if state.Length_Queue_Filing == 0:
@@ -190,12 +193,14 @@ def simulation(outputExcel=True,excelsaver=None):
 
                     state.Length_Queue_Filing -= 1
                     customer = state.waiting_Queue_Filing.pop(0)
-                    future_event_list.append({'Event Type': 'DF','id': customer['id'], 'Event Time': clock + sample_triangular(5,7,6)})
+                    future_event_list.append({'Event Type': 'DF','id': customer['id'], 'Event Time': clock + sample_triangular(
+                    envparam.Filling_the_case_min,envparam.Filling_the_case_max,envparam.Filling_the_case_mode)})
                 pass
             else:
                 state.Length_Queue_Complete_the_case -= 1
                 customer = state.waiting_Queue_Complete_the_case.pop(0)
-                future_event_list.append({'Event Type': 'DC','id': customer['id'] ,'Event Time': clock + sample_triangular(6,9,8)})
+                future_event_list.append({'Event Type': 'DC','id': customer['id'] ,'Event Time': clock + sample_triangular(
+                    envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
 
             if state.Length_Service_Expert2 == system.num_expert_workers:
                 # handler.update_expert_surface(clock, state)
@@ -214,7 +219,7 @@ def simulation(outputExcel=True,excelsaver=None):
                 r = random.random()
                 complaint = 1 if r < 0.1 else 0
                 future_event_list.append(
-                    {'Event Type': 'DE', 'complaint': complaint, 'id': current_event['id'], 'Event Time': clock + sample_exponential(1/9)})
+                    {'Event Type': 'DE', 'complaint': complaint, 'id': current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Expert_service)})
 
         elif Event_Type == 'DC':
             if current_event['id'] >  last_id_inside:
@@ -233,13 +238,15 @@ def simulation(outputExcel=True,excelsaver=None):
                     state.Length_Queue_Filing -= 1
                     customer = state.waiting_Queue_Filing.pop(0)
                     future_event_list.append(
-                        {'Event Type': 'DF', 'id': customer['id'], 'Event Time': clock + sample_triangular(5, 7, 6)})
+                        {'Event Type': 'DF', 'id': customer['id'], 'Event Time': clock + sample_triangular(
+                    envparam.Filling_the_case_min,envparam.Filling_the_case_max,envparam.Filling_the_case_mode)})
                 pass
             else:
                 state.Length_Queue_Complete_the_case -= 1
                 customer = state.waiting_Queue_Complete_the_case.pop(0)
                 future_event_list.append(
-                    {'Event Type': 'DC', 'id': customer['id'], 'Event Time': clock + sample_triangular(6, 9, 8)})
+                    {'Event Type': 'DC', 'id': customer['id'], 'Event Time': clock + sample_triangular(
+                    envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
 
             if clock < 600:
                 pass
@@ -269,7 +276,7 @@ def simulation(outputExcel=True,excelsaver=None):
                     handler.departEL[customer['id']] = clock
                     handler.update_sum_max_EL(handler.departEL[customer['id']]-handler.arivingEL[customer['id']])
 
-                future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + sample_exponential(1/9)})
+                future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + sample_exponential(1/envparam.Expert_service)})
 
             if current_event['complaint'] == 0:
                 if state.Length_Service_Expert1 == system.num_filing_completing_workers:
@@ -280,7 +287,8 @@ def simulation(outputExcel=True,excelsaver=None):
                 else:
                     # handler.update_Expert1_surface(clock, state)
                     state.Length_Service_Expert1 += 1
-                    future_event_list.append({'Event Type': 'DC','id':current_event['id'], 'Event Time': clock + sample_triangular(6,9,8)})
+                    future_event_list.append({'Event Type': 'DC','id':current_event['id'], 'Event Time': clock + sample_triangular(
+                    envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
 
 
 
@@ -294,7 +302,7 @@ def simulation(outputExcel=True,excelsaver=None):
                     # handler.update_Expert3_surface(clock, state)
                     state.Length_Service_Expert3 += 1
                     future_event_list.append({'Event Type': 'DSC', 'id': current_event['id'],
-                                              'Event Time': clock + sample_exponential(1 / 15)})
+                                              'Event Time': clock + sample_exponential(1 / envparam.Complaint_service)})
 
 
             pass
@@ -313,7 +321,7 @@ def simulation(outputExcel=True,excelsaver=None):
                 customer = state.waiting_Queue_Submitting_Complaint.pop(0)
                 handler.departSCL[customer['id']] = clock
                 handler.update_sum_max_SCL(handler.departSCL[customer['id']]-handler.arivingSCL[customer['id']])
-                future_event_list.append({'Event Type': 'DSC', 'id': customer['id'],'Event Time': clock + sample_exponential(1/15)})
+                future_event_list.append({'Event Type': 'DSC', 'id': customer['id'],'Event Time': clock + sample_exponential(1/envparam.Complaint_service)})
                 pass
 
             if state.Length_Service_Expert2 == system.num_expert_workers:
@@ -328,7 +336,7 @@ def simulation(outputExcel=True,excelsaver=None):
             else:
                 # handler.update_Expert2_surface(clock, state)
                 state.Length_Service_Expert2 += 1
-                future_event_list.append({'Event Type': 'DE','complaint': 0,'id': current_event['id'], 'Event Time': clock + sample_exponential(1/9)})
+                future_event_list.append({'Event Type': 'DE','complaint': 0,'id': current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Expert_service)})
                 pass
 
         elif Event_Type == 'PA':
@@ -371,7 +379,7 @@ def simulation(outputExcel=True,excelsaver=None):
                 else:
                     # handler.update_Service_Photographer_surface(clock,state)
                     state.Length_Service_Photographer += 1
-                    future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
+                    future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Photography_service)})
 
         elif Event_Type == 'OIN':
             if clock < 600:
@@ -489,17 +497,18 @@ def runsimul(noreplication):
 
 
 getExcel = False
-num = 2
+num = 20
 noreplication = 30
 
 if not getExcel:
     for j in range(num):
+        print(f'num {j + 1}')
         data = runsimul(noreplication)
         statutil.add_for_confidence_interval(data)
     statutil.compute_confidence_interval()
 else:
     excelSaver = excelOutput.exceloutput()
-    for i in range(3):
+    for i in range(30):
         simulation(True,excelSaver)
         excelSaver.add_empty_row()
         excelSaver.add_empty_row()
