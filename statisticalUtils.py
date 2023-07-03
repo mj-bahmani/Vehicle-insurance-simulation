@@ -17,8 +17,8 @@ class statistics:
 
         self.maxTimePhQ = []
         self.maxTimeOQ = []
-        self.maxSCL = []
-        self.maxEl = []
+        self.maxTimeSCL = []
+        self.maxTimeEL = []
 
         self.APhCenter = []
         self.AFilingCenter = []
@@ -45,8 +45,8 @@ class statistics:
                          'AComplaintCenter': [],
                          'maxTimePhQ': [],
                          'maxTimeOQ': [],
-                         'maxSCL': [],
-                         'maxEl': [],
+                         'maxTimeSCL': [],
+                         'maxTimeEL': [],
                          'mean_in_PHQ': [],
                          'mean_in_outside': [],
                          'mean_in_SCL': [],
@@ -73,8 +73,8 @@ class statistics:
         self.AComplaintCenter.append(data[10])
         self.maxTimePhQ.append(data[11])
         self.maxTimeOQ.append(data[12])
-        self.maxSCL.append(data[13])
-        self.maxEl.append(data[14])
+        self.maxTimeSCL.append(data[13])
+        self.maxTimeEL.append(data[14])
         self.mean_in_PHQ.append(data[15])
         self.mean_in_outside.append(data[16])
         self.mean_in_SCL.append(data[17])
@@ -103,8 +103,8 @@ class statistics:
             'AComplaintCenter': np.array(self.AComplaintCenter),
             'maxTimePhQ': np.array(self.maxTimePhQ),
             'maxTimeOQ': np.array(self.maxTimeOQ),
-            'maxSCL': np.array(self.maxSCL),
-            'maxEl': np.array(self.maxEl),
+            'maxTimeSCL': np.array(self.maxTimeSCL),
+            'maxTimeEL': np.array(self.maxTimeEL),
             'mean_in_PHQ': np.array(self.mean_in_PHQ),
             'mean_in_outside': np.array(self.mean_in_outside),
             'mean_in_SCL': np.array(self.mean_in_SCL),

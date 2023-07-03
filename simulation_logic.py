@@ -121,7 +121,7 @@ def simulation(outputExcel=True):
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
                 handler.departPhQ[customer['id']] = clock
-
+                handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']])
                 if state.Length_Queue_Parking == 0:
 
                     future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
@@ -149,6 +149,7 @@ def simulation(outputExcel=True):
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
                 handler.departPhQ[customer['id']] = clock
+                handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']])
 
                 future_event_list.append({'Event Type': 'DP','id': customer['id']  ,'Event Time': clock + sample_exponential(1/6)})
 
@@ -245,9 +246,13 @@ def simulation(outputExcel=True):
 
                 customer = state.waiting_Queue_Expert.pop(0)
                 if customer['id'] in handler.departEL.keys():
+
                     handler.departEL2[customer['id']] = clock
+                    handler.update_sum_max_EL(handler.departEL2[customer['id']]-handler.arivingEL2[customer['id']])
                 else:
                     handler.departEL[customer['id']] = clock
+                    handler.update_sum_max_EL(handler.departEL[customer['id']]-handler.arivingEL[customer['id']])
+
                 future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + sample_exponential(1/9)})
 
             if current_event['complaint'] == 0:
@@ -291,6 +296,7 @@ def simulation(outputExcel=True):
                 state.Length_Queue_Submitting_Complaint -= 1
                 customer = state.waiting_Queue_Submitting_Complaint.pop(0)
                 handler.departSCL[customer['id']] = clock
+                handler.update_sum_max_SCL(handler.departSCL[customer['id']]-handler.arivingSCL[customer['id']])
                 future_event_list.append({'Event Type': 'DSC', 'id': customer['id'],'Event Time': clock + sample_exponential(1/15)})
                 pass
 
@@ -358,6 +364,7 @@ def simulation(outputExcel=True):
                     customer = state.waiting_Queue_OutSide.pop(0)
                     handler.departOQ[customer['id']] = clock
                     state.Length_Queue_OutSide -= 1
+                    handler.update_sum_max_OQ(handler.departOQ[customer['id']]-handler.arivingOQ[customer['id']])
 
                     if customer['alone'] == 0  :
                         state.Length_Queue_Photography += 1
