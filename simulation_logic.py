@@ -39,6 +39,7 @@ def simulation(outputExcel=True):
     id = 1
     last_id_inside = 0
     system = System.System()
+    i = 1
     while running:
 
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
@@ -48,14 +49,26 @@ def simulation(outputExcel=True):
 
         a = current_event['id'] if 'id' in current_event.keys() else ''
 
+        handler.update_queue_parking_empty(clock, state)
+        handler.update_photography_surface(clock, state)
+        handler.update_outside_surface(clock, state)
+        handler.update_submiting_surface(clock, state)
+        handler.update_expert_surface(clock, state)
+
+        handler.update_Service_Photographer_surface(clock, state)
+        handler.update_Expert1_surface(clock, state)
+        handler.update_Expert2_surface(clock, state)
+        handler.update_Expert3_surface(clock, state)
+
         if outputExcel:
-            handler.add_row_df([current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
+            handler.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
                                 state.Length_Service_Expert2, state.Length_Service_Expert3,
                                 state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
                                 state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
                                 state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
-                                handler.EFQT, handler.EQPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
-                                , handler.SExpertCenter, handler.SComplaintCenter, sorted_fel])
+                                handler.EFQT, handler.EWPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
+                                , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
+                                   handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
 
         Event_Type = current_event['Event Type']
         clock = current_event['Event Time']  # Advance time
@@ -66,14 +79,14 @@ def simulation(outputExcel=True):
                 if current_event['alone'] == 0:
                     if state.Length_Service_Photographer == system.num_photography_workers:
                         if state.Length_Queue_Photography == system.max_photography_queue_size:
-                            handler.update_outside_surface(clock,state)
+                            # handler.update_outside_surface(clock,state)
                             handler.arivingOQ[current_event['id']] = clock
                             state.Length_Queue_OutSide += 1
                             state.waiting_Queue_OutSide.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
                                                                 'alone': 0 })
 
                         else:
-                            handler.update_photography_surface(clock,state)
+                            # handler.update_photography_surface(clock,state)
                             state.Length_Queue_Photography += 1
                             handler.arivingPhQ[current_event['id']] = clock
                             state.waiting_Queue_Photography.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
@@ -81,14 +94,14 @@ def simulation(outputExcel=True):
 
 
                     else:
-                        handler.update_Service_Photographer_surface(clock, state)
+                        # handler.update_Service_Photographer_surface(clock, state)
 
                         state.Length_Service_Photographer += 1
 
                         future_event_list.append({'Event Type': 'DP', 'id' : current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
                 else:
                     if state.Length_Queue_Photography == system.max_photography_queue_size:
-                        handler.update_outside_surface(clock, state)
+                        # handler.update_outside_surface(clock, state)
                         handler.arivingOQ[current_event['id']] = clock
                         state.Length_Queue_OutSide += 1
                         state.waiting_Queue_OutSide.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
@@ -96,7 +109,7 @@ def simulation(outputExcel=True):
                         future_event_list.append({'Event Type': 'PA', 'id':current_event['id'], 'Event Time': clock + sample_exponential(1/30)})
 
                     else:
-
+                        # handler.update_queue_parking_empty(clock,state)
                         handler.update_waiting_parking(state)
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id': current_event['id'], 'Event Time': current_event['Event Time'],
@@ -117,7 +130,7 @@ def simulation(outputExcel=True):
         elif Event_Type == 'DP':
 
             if state.Length_Queue_Photography == system.max_photography_queue_size:
-                handler.update_photography_surface(clock, state)
+                # handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
                 handler.departPhQ[customer['id']] = clock
@@ -127,12 +140,13 @@ def simulation(outputExcel=True):
                     future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
 
                 else:
-                    handler.update_photography_surface(clock, state)
+                    # handler.update_photography_surface(clock, state)
                     state.Length_Queue_Photography += 1
-                    handler.arivingPhQ[customer['id']] = clock
+
                     customer = state.waiting_Queue_Parking.pop(0)
+                    handler.arivingPhQ[customer['id']] = clock
                     state.waiting_Queue_Photography.append({'id': customer['id'], 'alone': 0 })
-                    handler.update_queue_parking_empty(clock, state)
+
                     state.Length_Queue_Parking -= 1
 
 
@@ -140,12 +154,12 @@ def simulation(outputExcel=True):
 
 
             elif state.Length_Queue_Photography == 0:
-                handler.update_Service_Photographer_surface(clock, state)
+                # handler.update_Service_Photographer_surface(clock, state)
 
                 state.Length_Service_Photographer -= 1
 
             else:
-                handler.update_photography_surface(clock, state)
+                # handler.update_photography_surface(clock, state)
                 state.Length_Queue_Photography -= 1
                 customer = state.waiting_Queue_Photography.pop(0)
                 handler.departPhQ[customer['id']] = clock
@@ -161,13 +175,13 @@ def simulation(outputExcel=True):
                 state.waiting_Queue_Filing.append({'id': current_event['id']})
 
             else:
-                handler.update_Expert1_surface(clock, state)
+                # handler.update_Expert1_surface(clock, state)
                 state.Length_Service_Expert1 += 1
                 future_event_list.append({'Event Type': 'DF','id':current_event['id'], 'Event Time': clock + sample_triangular(5,7,6)})
         elif Event_Type == 'DF':
             if state.Length_Queue_Complete_the_case == 0:
                 if state.Length_Queue_Filing == 0:
-                    handler.update_Expert1_surface(clock, state)
+                    # handler.update_Expert1_surface(clock, state)
                     state.Length_Service_Expert1 -= 1
 
                 else:
@@ -183,7 +197,7 @@ def simulation(outputExcel=True):
                 future_event_list.append({'Event Type': 'DC','id': customer['id'] ,'Event Time': clock + sample_triangular(6,9,8)})
 
             if state.Length_Service_Expert2 == system.num_expert_workers:
-                handler.update_expert_surface(clock, state)
+                # handler.update_expert_surface(clock, state)
                 state.Length_Queue_Expert += 1
                 if current_event['id'] in handler.arivingEL.keys():
                     handler.arivingEL2[current_event['id']] = clock
@@ -194,7 +208,7 @@ def simulation(outputExcel=True):
                 state.waiting_Queue_Expert.append({'id':current_event['id'],'complaint':complaint})
 
             else:
-                handler.update_Expert2_surface(clock,state)
+                # handler.update_Expert2_surface(clock,state)
                 state.Length_Service_Expert2 += 1
                 r = random.random()
                 complaint = 1 if r < 0.1 else 0
@@ -209,7 +223,7 @@ def simulation(outputExcel=True):
 
             if state.Length_Queue_Complete_the_case == 0:
                 if state.Length_Queue_Filing == 0:
-                    handler.update_Expert1_surface(clock, state)
+                    # handler.update_Expert1_surface(clock, state)
                     state.Length_Service_Expert1 -= 1
 
                 else:
@@ -238,11 +252,11 @@ def simulation(outputExcel=True):
         elif Event_Type == 'DE':
 
             if state.Length_Queue_Expert == 0:
-                handler.update_Expert2_surface(clock, state)
+                # handler.update_Expert2_surface(clock, state)
                 state.Length_Service_Expert2 -= 1
 
             else:
-                handler.update_expert_surface(clock, state)
+                # handler.update_expert_surface(clock, state)
                 state.Length_Queue_Expert -= 1
 
                 customer = state.waiting_Queue_Expert.pop(0)
@@ -263,7 +277,7 @@ def simulation(outputExcel=True):
 
 
                 else:
-                    handler.update_Expert1_surface(clock, state)
+                    # handler.update_Expert1_surface(clock, state)
                     state.Length_Service_Expert1 += 1
                     future_event_list.append({'Event Type': 'DC','id':current_event['id'], 'Event Time': clock + sample_triangular(6,9,8)})
 
@@ -271,12 +285,12 @@ def simulation(outputExcel=True):
 
             else:
                 if state.Length_Service_Expert3 == system.num_submiting_complaint_workers:
-                    handler.update_submiting_surface(clock, state)
+                    # handler.update_submiting_surface(clock, state)
                     handler.arivingSCL[current_event['id']] = clock
                     state.Length_Queue_Submitting_Complaint += 1
                     state.waiting_Queue_Submitting_Complaint.append({'id': current_event['id']})
                 else:
-                    handler.update_Expert3_surface(clock, state)
+                    # handler.update_Expert3_surface(clock, state)
                     state.Length_Service_Expert3 += 1
                     future_event_list.append({'Event Type': 'DSC', 'id': current_event['id'],
                                               'Event Time': clock + sample_exponential(1 / 15)})
@@ -288,11 +302,11 @@ def simulation(outputExcel=True):
                 handler.alone_submited_complaint += 1
             state.noSubmitComplaint += 1
             if state.Length_Queue_Submitting_Complaint == 0:
-                handler.update_Expert3_surface(clock, state)
+                # handler.update_Expert3_surface(clock, state)
                 state.Length_Service_Expert3 -= 1
                 pass
             else:
-                handler.update_submiting_surface(clock, state)
+                # handler.update_submiting_surface(clock, state)
 
                 state.Length_Queue_Submitting_Complaint -= 1
                 customer = state.waiting_Queue_Submitting_Complaint.pop(0)
@@ -302,7 +316,7 @@ def simulation(outputExcel=True):
                 pass
 
             if state.Length_Service_Expert2 == system.num_expert_workers:
-                handler.update_expert_surface(clock,state)
+                # handler.update_expert_surface(clock,state)
                 state.Length_Queue_Expert += 1
                 if current_event['id'] in handler.arivingEL.keys():
                     handler.arivingEL2[current_event['id']] = clock
@@ -311,7 +325,7 @@ def simulation(outputExcel=True):
                 state.waiting_Queue_Expert.append({'id':current_event['id'],'complaint': 0})
                 pass
             else:
-                handler.update_Expert2_surface(clock, state)
+                # handler.update_Expert2_surface(clock, state)
                 state.Length_Service_Expert2 += 1
                 future_event_list.append({'Event Type': 'DE','complaint': 0,'id': current_event['id'], 'Event Time': clock + sample_exponential(1/9)})
                 pass
@@ -332,6 +346,7 @@ def simulation(outputExcel=True):
 
                 for car in state.waiting_Waiting_Parking:
                     if car['id'] == current_event['id']:
+                        # handler.update_queue_parking_empty(clock, state)
                         handler.update_waiting_parking(state)
                         state.waiting_Waiting_Parking.remove(car)
                         state.Length_Waiting_Parking -= 1
@@ -340,27 +355,27 @@ def simulation(outputExcel=True):
                 if state.Length_Service_Photographer == system.num_photography_workers:
 
                     if state.Length_Queue_Photography == system.max_photography_queue_size:
-                        handler.update_queue_parking_empty(clock, state)
+
 
                         state.Length_Queue_Parking += 1
                         state.waiting_Queue_Parking.append({'id':current_event['id']})
 
                     else:
-                        handler.update_photography_surface(clock, state)
+                        # handler.update_photography_surface(clock, state)
                         handler.arivingPhQ[current_event['id']] = clock
                         state.Length_Queue_Photography += 1
 
                         state.waiting_Queue_Photography.append({'id':current_event['id']})
 
                 else:
-                    handler.update_Service_Photographer_surface(clock,state)
+                    # handler.update_Service_Photographer_surface(clock,state)
                     state.Length_Service_Photographer += 1
                     future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + sample_exponential(1/6)})
 
         elif Event_Type == 'OIN':
             if clock < 600:
                 if state.Length_Queue_OutSide > 0:
-                    handler.update_outside_surface(clock, state)
+                    # handler.update_outside_surface(clock, state)
 
                     customer = state.waiting_Queue_OutSide.pop(0)
                     handler.departOQ[customer['id']] = clock
@@ -373,7 +388,7 @@ def simulation(outputExcel=True):
                         state.waiting_Queue_Photography.append({'id':customer['id']})
 
                     else:
-
+                        # handler.update_photography_surface(clock, state)
                         handler.update_waiting_parking(state)
                         state.Length_Waiting_Parking += 1
                         state.waiting_Waiting_Parking.append({'id':customer['id'],'alone':1})
@@ -386,7 +401,7 @@ def simulation(outputExcel=True):
                 else:
                     pass
             else:
-                handler.update_outside_surface(clock, state)
+                # handler.update_outside_surface(clock, state)
                 for pair in state.waiting_Queue_OutSide:
                     handler.departOQ[pair['id']] = 600
 
@@ -399,16 +414,7 @@ def simulation(outputExcel=True):
                 if state.Length_Service_Photographer == 0:
                     if state.Length_Service_Expert2 == 0:
                         if state.Length_Service_Expert3 == 0:
-                            handler.update_queue_parking_empty(clock, state)
-                            handler.update_photography_surface(clock, state)
-                            handler.update_outside_surface(clock, state)
-                            handler.update_submiting_surface(clock, state)
-                            handler.update_expert_surface(clock, state)
 
-                            handler.update_Service_Photographer_surface(clock, state)
-                            handler.update_Expert1_surface(clock, state)
-                            handler.update_Expert2_surface(clock, state)
-                            handler.update_Expert3_surface(clock, state)
 
                             running = False
                         else:
@@ -421,9 +427,12 @@ def simulation(outputExcel=True):
                 pass
             pass
 
+        i += 1
 
         future_event_list.remove(current_event)
+
     if outputExcel:
+
         handler.save_df()
         return  handler.print_outputs(clock,last_id_inside, id, state)
 

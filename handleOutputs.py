@@ -18,7 +18,7 @@ class handleOutput:
         self.SSCL = 0    #submiting complaint
         self.SEL = 0    #expert
         self.EFQT = 0   # filing empty time
-        self.EQPT = 0  #waiting parking
+        self.EWPT = 0  #waiting parking
 
         self.MPhL = 0  # photo
         self.MOL = 0  # outside
@@ -49,7 +49,7 @@ class handleOutput:
                         'Length_Service_Expert3', 'Length_Queue_Parking', 'Length_Queue_OutSide',
                         'Length_Queue_Photography',
                         'Length_Queue_Filing', 'Length_Queue_Complete_the_case', 'Length_Queue_Expert',
-                        'Length_Queue_Submitting_Complaint', 'Length_Waiting_Parking','SPHL','SOL','SSCL','SEL','EFQT','EQPT',
+                        'Length_Queue_Submitting_Complaint', 'Length_Waiting_Parking','SPHL','SOL','SSCL','SEL','EFQT','EWPT',
                         'MPhL','MOL','MSCL','MEL','SPhCenter','SFilingCenter','SExpertCenter','SComplaintCenter',
                         'sum_Time_phQ','sum_Time_OQ','sum_Time_SCL','sum_Time_EL','max_Time_PhQ','max_Time_OQ','max_Time_SCL','max_Time_EL','future event list']
 
@@ -108,8 +108,8 @@ class handleOutput:
         self.clockFiling = clock
 
     def update_queue_parking_empty(self,clock,state):
-        if state.Length_Queue_Parking == 0:
-            self.EQPT += (clock - self.clockQueueParking)
+        if state.Length_Waiting_Parking == 0:
+            self.EWPT += (clock - self.clockQueueParking)
         self.clockQueueParking = clock
 
     def update_Service_Photographer_surface(self,clock,state):
@@ -125,8 +125,10 @@ class handleOutput:
         self.SComplaintCenter += (clock - self.clockExpert3) * state.Length_Service_Expert3
         self.clockExpert3 = clock
     def update_waiting_parking(self,state):
+
         if state.Length_Waiting_Parking > self.MWPL:
             self.MWPL = state.Length_Waiting_Parking
+
     def update_sum_max_PhQ(self,time):
         self.sum_Time_phQ += time
         if time > self.max_Time_PhQ:
@@ -136,7 +138,7 @@ class handleOutput:
         if time > self.max_Time_OQ:
             self.max_Time_OQ = time
     def update_sum_max_SCL(self, time):
-        self.arivingSCL += time
+        self.sum_Time_SCL += time
         if time > self.max_Time_SCL:
             self.max_Time_SCL = time
     def update_sum_max_EL(self,time):
@@ -160,7 +162,7 @@ class handleOutput:
             s += i
 
         return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
-            self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
+            self.SEL / clock,self.EFQT / clock,self.EWPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
             self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\
             self.max_Time_PhQ,self.max_Time_OQ,self.max_Time_SCL,self.max_Time_EL,self.sum_Time_phQ/(last_id + 1),self.sum_Time_OQ/(id+1),\
             self.sum_Time_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,self.sum_Time_EL/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]

@@ -8,7 +8,7 @@ class statistics:
         self.ASCL = []  # submiting complaint
         self.AEL = []  # expert
         self.PEFQT = []  # filing empty time
-        self.PEQPT = []  # waiting parking
+        self.PEWPT = []  # waiting parking
 
         self.MPhL = []  # photo
         self.MOL = []  # outside
@@ -38,7 +38,7 @@ class statistics:
                          'ASCL': [],
                          'AEL': [],
                          'PEFQT': [],
-                         'PEQPT': [],
+                         'PEWPT': [],
                          'APhCenter': [],
                          'AFilingCenter': [],
                          'AExpertCenter': [],
@@ -66,7 +66,7 @@ class statistics:
         self.ASCL.append(data[3])
         self.AEL.append(data[4])
         self.PEFQT.append(data[5])
-        self.PEQPT.append(data[6])
+        self.PEWPT.append(data[6])
         self.APhCenter.append(data[7])
         self.AFilingCenter.append(data[8])
         self.AExpertCenter.append(data[9])
@@ -96,7 +96,7 @@ class statistics:
             'ASCL': np.array(self.ASCL),
             'AEL': np.array(self.AEL),
             'PEFQT': np.array(self.PEFQT),
-            'PEQPT': np.array(self.PEQPT),
+            'PEWPT': np.array(self.PEWPT),
             'APhCenter': np.array(self.APhCenter),
             'AFilingCenter': np.array(self.AFilingCenter),
             'AExpertCenter': np.array(self.AExpertCenter),
