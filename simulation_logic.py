@@ -251,7 +251,7 @@ def simulation(outputExcel=True):
                 future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + sample_exponential(1/9)})
 
             if current_event['complaint'] == 0:
-                if state.Length_Service_Expert1 == 3:
+                if state.Length_Service_Expert1 == system.num_filing_completing_workers:
                     state.Length_Queue_Complete_the_case += 1
                     state.waiting_Queue_Complete_the_case.append({'id':current_event['id']})
 

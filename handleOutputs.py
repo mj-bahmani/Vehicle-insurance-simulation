@@ -38,10 +38,10 @@ class handleOutput:
         self.arivingEL2 = {}
         self.departEL2 = {}
 
-        self.maxTimePhQ = -1
-        self.maxTimeOQ = -1
-        self.maxSCL = -1
-        self.maxEl = -1
+        self.maxTimePhQ = 0
+        self.maxTimeOQ = 0
+        self.maxSCL = 0
+        self.maxEl = 0
 
         self.SPhCenter = 0
         self.SFilingCenter = 0
