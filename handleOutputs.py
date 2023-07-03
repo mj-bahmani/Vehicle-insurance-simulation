@@ -143,6 +143,8 @@ class handleOutput:
         self.sum_Time_EL += time
         if time > self.max_Time_EL:
             self.max_Time_EL = time
+    def update_sum_remaining_time(self,time):
+        self.remainSystem += time
 
     def add_row_df(self, data):
         self.df.loc[self.df.shape[0]] = data
@@ -157,67 +159,11 @@ class handleOutput:
         for i in remainingtime:
             s += i
 
-
-
-        time_in_PhQ = []
-        time_in_OQ = []
-        time_in_SCL = []
-        time_in_El = []
-
-
-
-
-
-        for k in self.arivingPhQ.keys():
-            time_in_PhQ.append(self.departPhQ[k] - self.arivingPhQ[k])
-            if self.departPhQ[k] - self.arivingPhQ[k]> max_Time_PhQ:
-                max_Time_PhQ = self.departPhQ[k] - self.arivingPhQ[k]
-
-        for k in self.arivingOQ.keys():
-            a = self.departOQ[k] - self.arivingOQ[k]
-            time_in_OQ.append(a)
-            if a > max_Time_OQ :
-                max_Time_OQ = a
-
-        for k in self.arivingSCL.keys():
-            time_in_SCL.append(self.departSCL[k] - self.arivingSCL[k])
-            if self.departSCL[k] - self.arivingSCL[k]> max_Time_SCL:
-                max_Time_SCL = self.departSCL[k] - self.arivingSCL[k]
-
-        for k in self.arivingEL.keys():
-
-            time_in_El.append(self.departEL[k] - self.arivingEL[k])
-            if self.departEL[k] - self.arivingEL[k]> max_Time_EL:
-                max_Time_EL = self.departEL[k] - self.arivingEL[k]
-
-        for k in self.arivingEL2.keys():
-
-            time_in_El.append(self.departEL2[k] - self.arivingEL2[k])
-            if self.departEL2[k] - self.arivingEL2[k] > max_Time_EL:
-                max_Time_EL = self.departEL2[k] - self.arivingEL2[k]
-
-
-
-
-
-        for i in time_in_PhQ:
-            sum_Time_phQ += i
-        for i in time_in_OQ:
-            sum_Time_OQ += i
-        for i in time_in_SCL:
-            sum_Time_SCL += i
-        for i in time_in_El:
-            sum_Time_EL += i
-
-
-
-
-
         return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
             self.SEL / clock,self.EFQT / clock,self.EQPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
             self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\
-            max_Time_PhQ,max_Time_OQ,max_Time_SCL,max_Time_EL,sum_Time_phQ/(last_id + 1),sum_Time_OQ/(id+1),\
-            sum_Time_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,sum_Time_EL/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
+            self.max_Time_PhQ,self.max_Time_OQ,self.max_Time_SCL,self.max_Time_EL,self.sum_Time_phQ/(last_id + 1),self.sum_Time_OQ/(id+1),\
+            self.sum_Time_SCL/(state.noSubmitComplaint),self.MPhL,self.MOL,self.MSCL,self.MEL,self.sum_Time_EL/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
 
 
 

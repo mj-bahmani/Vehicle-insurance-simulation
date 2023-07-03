@@ -205,6 +205,7 @@ def simulation(outputExcel=True):
             if current_event['id'] >  last_id_inside:
                 last_id_inside = current_event['id']
             handler.depart_time[current_event['id']] = clock
+            handler.update_sum_remaining_time(handler.depart_time[current_event['id']] - handler.arrive_time[current_event['id']])
 
             if state.Length_Queue_Complete_the_case == 0:
                 if state.Length_Queue_Filing == 0:
