@@ -44,16 +44,7 @@ class handleOutput:
         self.SExpertCenter = 0
         self.SComplaintCenter = 0
 
-        column_names = ['Step',"Time", "Event","id", 'Length_Service_Photographer', 'Length_Service_Expert1',
-                        'Length_Service_Expert2',
-                        'Length_Service_Expert3', 'Length_Queue_Parking', 'Length_Queue_OutSide',
-                        'Length_Queue_Photography',
-                        'Length_Queue_Filing', 'Length_Queue_Complete_the_case', 'Length_Queue_Expert',
-                        'Length_Queue_Submitting_Complaint', 'Length_Waiting_Parking','SPHL','SOL','SSCL','SEL','EFQT','EWPT',
-                        'MPhL','MOL','MSCL','MEL','SPhCenter','SFilingCenter','SExpertCenter','SComplaintCenter',
-                        'sum_Time_phQ','sum_Time_OQ','sum_Time_SCL','sum_Time_EL','max_Time_PhQ','max_Time_OQ','max_Time_SCL','max_Time_EL','future event list']
 
-        self.df = pd.DataFrame(columns=column_names)
         self.clockPhotography = 0
         self.clockOutside = 0
         self.clockSubmitting = 0
@@ -148,10 +139,7 @@ class handleOutput:
     def update_sum_remaining_time(self,time):
         self.remainSystem += time
 
-    def add_row_df(self, data):
-        self.df.loc[self.df.shape[0]] = data
-    def save_df(self):
-        self.df.to_csv("output.csv", index=False)
+
     def print_outputs(self,clock,last_id,id,state):
         remainingtime = []
         for k in self.arrive_time.keys():
@@ -160,7 +148,7 @@ class handleOutput:
         s = 0
         for i in remainingtime:
             s += i
-
+        print(clock,self.EWPT)
         return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
             self.SEL / clock,self.EFQT / clock,self.EWPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
             self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\

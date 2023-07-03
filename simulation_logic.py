@@ -5,6 +5,7 @@ import random
 import math
 
 import System
+import excelOutput
 import statisticalUtils
 from States import States
 from handleOutputs import handleOutput
@@ -24,7 +25,7 @@ def starting_state():
 
     return state, future_event_list
 
-def simulation(outputExcel=True):
+def simulation(outputExcel=True,excelsaver=None):
     """ This is the main function of simulation that handles the modifications that each event notice
     applies on the state valriables
     """
@@ -61,7 +62,7 @@ def simulation(outputExcel=True):
         handler.update_Expert3_surface(clock, state)
 
         if outputExcel:
-            handler.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
+            excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
                                 state.Length_Service_Expert2, state.Length_Service_Expert3,
                                 state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
                                 state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
@@ -431,13 +432,8 @@ def simulation(outputExcel=True):
 
         future_event_list.remove(current_event)
 
-    if outputExcel:
 
-        handler.save_df()
-        return  handler.print_outputs(clock,last_id_inside, id, state)
-
-    else:
-        return handler.print_outputs(clock,last_id_inside, id, state)
+    return handler.print_outputs(clock,last_id_inside, id, state)
 
     print('done')
 def sample_exponential(lambda_val):
@@ -480,25 +476,32 @@ def convert_to_hour(time):
 
 
 statutil = statisticalUtils.statistics()
-getoutput = True
+
+
 def runsimul(noreplication):
-    global getoutput
     for i in range(noreplication):
         print(f'replication {i + 1}')
-        l = simulation(getoutput)
-        getoutput = False
+        l = simulation(False)
         statutil.add_static(l)
 
-    data = statutil.find_statistic()
+        data = statutil.find_statistic()
     return data
 
 
-num = 30
+getExcel = False
+num = 2
 noreplication = 30
-for j in range(num):
-    data = runsimul(noreplication)
-    statutil.add_for_confidence_interval(data)
-statutil.compute_confidence_interval()
 
-
+if not getExcel:
+    for j in range(num):
+        data = runsimul(noreplication)
+        statutil.add_for_confidence_interval(data)
+    statutil.compute_confidence_interval()
+else:
+    excelSaver = excelOutput.exceloutput()
+    for i in range(3):
+        simulation(True,excelSaver)
+        excelSaver.add_empty_row()
+        excelSaver.add_empty_row()
+    excelSaver.save_df()
 
