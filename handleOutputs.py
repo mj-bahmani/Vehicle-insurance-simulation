@@ -148,7 +148,6 @@ class handleOutput:
         s = 0
         for i in remainingtime:
             s += i
-        print(clock,self.EWPT)
         return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
             self.SEL / clock,self.EFQT / clock,self.EWPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
             self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\
