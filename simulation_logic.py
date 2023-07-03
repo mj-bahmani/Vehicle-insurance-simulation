@@ -143,7 +143,7 @@ def simulation(outputExcel=True,excelsaver=None):
                         state.Length_Service_Photographer += 1
 
                         future_event_list.append({'Event Type': 'DP', 'id' : current_event['id'], 'Event Time': clock + sample_exponential(1/envparam.Photography_service)})
-                else:
+                else: # if it was alone do the
                     if state.Length_Queue_Photography == system.max_photography_queue_size:
                         handler.arivingOQ[current_event['id']] = clock
                         state.Length_Queue_OutSide += 1
