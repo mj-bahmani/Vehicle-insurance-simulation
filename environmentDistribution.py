@@ -8,12 +8,13 @@ class EnvironmentDist:
         Initializes parameters for various service time distributions in the environment.
         """
 
+        self.being_alone_probability = 0
         # Service time for the Photography service follows Exponential distribution with lambda=6
         self.Photography_service = 6
 
         # Time for Single car waiting follows Exponential distribution with lambda=30
         self.Single_car_waiting = 30
-
+        self.arrival_mean = 5
         # Service time parameters for Filling the case follows Triangular distribution
         self.Filling_the_case_min = 5
         self.Filling_the_case_mode = 6
@@ -29,6 +30,5 @@ class EnvironmentDist:
 
         # Service time for Complaint service follows Exponential distribution with lambda=15
         self.Complaint_service = 15
-
 
 
