@@ -49,19 +49,21 @@ import System
 import environmentDistribution
 import excelOutput
 import statisticalUtils
+import warmUp
 from States import States
 from handleOutputs import handleOutput
 
 
-# a = mainSystem(env, System)
-# b =  mainSystem(env1, System1)
-
 
 class mainSystem:
-    def __init__(self, env, system):
+    def __init__(self, env, system,time, frameLength):
         self.env = env
         self.system = system
         self.statutil = statisticalUtils.statistics()
+        self.time = time
+        self.frameLength = frameLength
+        self.warmup = None
+        self.rep_number = None
 
     def starting_state(self, env):
         """ this is a function to evaluate the initial state of FEL in simulation"""
@@ -74,25 +76,28 @@ class mainSystem:
         # being alone with probability 0.3
         is_alone = 1 if r < env.being_alone_probability else 0
         # add the first event
-        future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': 0, 'Event Time': 0})  # This is an Event
 
+        for i in range(self.time//self.frameLength-2):
+            future_event_list.append({'Event Type': 'Frame_END', 'Event Time': (i+1)*self.frameLength})
+
+        future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': 0, 'Event Time': 0})  # This is an Event
+        future_event_list.append({'Event Type': 'END', 'Event Time': self.time})
         return state, future_event_list
 
-    def simulation(self,outputExcel=True,excelsaver=None):
+    def simulation(self,outputExcel=False,excelsaver=None):
         """ This is the main function of simulation that handles the modifications that each event notice
         applies on the state valriables
         """
+
+        self.warmup.clear_vars()
         envparam = self.env # this to handle the parameters such as rate of service and ....
         state, future_event_list = self.starting_state(envparam)
-        r = random.random()
-        weather_condition = 'rainy' if r < 0 else 'sunny'
-        # print(f'the weather condition is {weather_condition}')
         clock = 0
-        handler = handleOutput() # handling out puts
+        handler = handleOutput(self.system) # handling out puts
         running = True
         id = 1
         last_id_inside = 0
-        system = System.System() # this is parameters of the system such as num worker in each center
+        system = self.system # this is parameters of the system such as num worker in each center
         i = 1
         while running:
 
@@ -102,6 +107,12 @@ class mainSystem:
             current_event = sorted_fel[0]  # Find imminent event
 
             a = current_event['id'] if 'id' in current_event.keys() else ''
+
+
+
+            Event_Type = current_event['Event Type']
+            clock = current_event['Event Time']  # Advance time
+
 
             # these lines are for handeling and updating the cumulitive statistics
             handler.update_filing_empty(clock, state)
@@ -114,6 +125,8 @@ class mainSystem:
             handler.update_Expert1_surface(clock, state)
             handler.update_Expert2_surface(clock, state)
             handler.update_Expert3_surface(clock, state)
+            handler.update_filing_surface(clock,state)
+            handler.update_complete_surface(clock, state)
 
             if outputExcel:# this is for outputing and excel file if it was selected
                 excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
@@ -125,12 +138,11 @@ class mainSystem:
                                     , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
                                        handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
 
-            Event_Type = current_event['Event Type']
-            clock = current_event['Event Time']  # Advance time
+
             if Event_Type == 'A': # this is for handeling arival event
                 if current_event['alone'] == 1:
                     handler.alone_cars.append(current_event['id'])
-                if clock < 600:
+                if clock < self.time:
                     if current_event['alone'] == 0:
                         if state.Length_Service_Photographer == system.num_photography_workers:
                             if state.Length_Queue_Photography == system.max_photography_queue_size:
@@ -256,13 +268,13 @@ class mainSystem:
                     else:# if the expert part had idle worker let the pair in else move it to queue and add its id to compute the statistics
                         handler.arivingEL[current_event['id']] = clock
                     r = random.random()
-                    complaint = 1 if r < 0.1 else 0# set the value if it wants to submit complaint
+                    complaint = 1 if r < envparam.submiting_complaint_probability else 0# set the value if it wants to submit complaint
                     state.waiting_Queue_Expert.append({'id':current_event['id'],'complaint':complaint})
 
                 else:
                     state.Length_Service_Expert2 += 1
                     r = random.random()
-                    complaint = 1 if r < 0.1 else 0# set the value if it wants to submit complaint
+                    complaint = 1 if r < envparam.submiting_complaint_probability else 0# set the value if it wants to submit complaint
                     future_event_list.append(
                         {'Event Type': 'DE', 'complaint': complaint, 'id': current_event['id'], 'Event Time': clock + self.sample_exponential(1/envparam.Expert_service)})
 
@@ -293,14 +305,6 @@ class mainSystem:
                         {'Event Type': 'DC', 'id': customer['id'], 'Event Time': clock + self.sample_triangular(
                         envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
 
-                if clock < 600:# if the hour passed 600 make a Is end event to check wether there is some one in the system or not
-                    pass
-                else:
-                    if state.Length_Service_Expert1 == 0:# this actually checks that
-                        future_event_list.append({'Event Type': 'ISEND', 'Event Time': clock})
-                        pass
-                    else:
-                        pass
                 pass
             elif Event_Type == 'DE':
                 # this evnnt handling is for departure of expert
@@ -423,7 +427,7 @@ class mainSystem:
                         future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + self.sample_exponential(1/envparam.Photography_service)})
 
             elif Event_Type == 'OIN':# entering a car from outside queue to inside
-                if clock < 600:
+                if clock < self.time:
                     if state.Length_Queue_OutSide > 0:
 
                         customer = state.waiting_Queue_OutSide.pop(0)
@@ -451,29 +455,44 @@ class mainSystem:
                 else:
                     # make the outside queue empty after hour 6
                     for pair in state.waiting_Queue_OutSide:
-                        handler.departOQ[pair['id']] = 600
+                        handler.departOQ[pair['id']] = self.time
 
                     state.Length_Queue_OutSide = 0
 
                     state.waiting_Queue_OutSide.clear()
 
-            elif Event_Type == 'ISEND':# checks wether the the center is empty and simulation is done
-                if state.Length_Waiting_Parking == 0:
-                    if state.Length_Service_Photographer == 0:
-                        if state.Length_Service_Expert2 == 0:
-                            if state.Length_Service_Expert3 == 0:
+            elif Event_Type == "END":
 
+                running = False
+            elif Event_Type == 'Frame_END':
+                handler.update_photography_surface(clock, state)
+                handler.update_outside_surface(clock, state)
+                handler.update_submiting_surface(clock, state)
+                handler.update_expert_surface(clock, state)
+                handler.update_filing_surface(clock, state)
+                handler.update_complete_surface(clock, state)
+                self.warmup.warmup_Phq[self.rep_number].append((handler.SPhL-self.warmup.previous_Phq)/self.frameLength)
+                self.warmup.previous_Phq = handler.SPhL
 
-                                running = False
-                            else:
-                                pass
-                        else:
-                            pass
-                    else:
-                        pass
-                else:
-                    pass
-                pass
+                self.warmup.warmup_Oq[self.rep_number].append(
+                    (handler.SOL - self.warmup.previous_Oq) / self.frameLength)
+                self.warmup.previous_Oq = handler.SOL
+
+                self.warmup.warmup_fq[self.rep_number].append(
+                    (handler.SFL - self.warmup.previous_fq) / self.frameLength)
+                self.warmup.previous_fq = handler.SFL
+
+                self.warmup.warmup_cq[self.rep_number].append(
+                    (handler.SCL - self.warmup.previous_cq) / self.frameLength)
+                self.warmup.previous_cq = handler.SCL
+
+                self.warmup.warmup_eq[self.rep_number].append(
+                    (handler.SEL - self.warmup.previous_eq) / self.frameLength)
+                self.warmup.previous_eq = handler.SEL
+
+                self.warmup.warmup_scq[self.rep_number].append(
+                    (handler.SSCL - self.warmup.previous_scq) / self.frameLength)
+                self.warmup.previous_scq = handler.SSCL
 
             i += 1
             # removes from the queue and go to next step
@@ -502,31 +521,30 @@ class mainSystem:
             return max - math.sqrt((1-r)*(max-min)*(max-mod))
 
 
-    def runsimul(self,noreplication):
-        """ this function useed to run simulation for a value asigned to it as the number of replication """
-        for i in range(noreplication):
-            print(f'replication {i + 1}')
-            l = self.simulation(False)
-            self.statutil.add_static(l)
+    def run_simul(self,replication):
+        """this is a function to run the simulation for a replication number of times
+        and get the average of the outputs"""
+        # make a list to save the outputs
+        outputs = []
+        self.warmup = warmUp.WarmUP(replication)
+        for i in range(replication):
+            # run the simulation
+            self.rep_number = i
+            self.simulation()
+        self.warmup.res_2_numpy()
+        self.warmup.cal_mean()
+        self.warmup.draw_chart()
 
-            data = self.statutil.find_statistic()
-        return data
 
+env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7, 6, 8, 9,7, 0.1 )
+env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,3,3.5,4,8,0)
+sys1 = System.System(3)
+sys2 = System.System(4)
 
+simul1 = mainSystem(env1,sys1,100000, 500)
+simul1.run_simul(20)
 
-    def run_system(self, num ,noreplication, getExcel):
-        if not getExcel:
-            # this is for getting the resullts
-            for j in range(num):
-                print(f'num {j + 1}')
-                data = self.runsimul(noreplication)
-                self.statutil.add_for_confidence_interval(data)
-            self.statutil.compute_confidence_interval()
-        else:
-            #this is for getting the excel
-            excelSaver = excelOutput.exceloutput()
-            for i in range(30):
-                self.simulation(True,excelSaver)
-                excelSaver.add_empty_row()
-                excelSaver.add_empty_row()
-            excelSaver.save_df()
+# simul =
+# a = mainSystem(env, System)
+# b =  mainSystem(env1, System1)
+

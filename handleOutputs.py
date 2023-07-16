@@ -5,14 +5,15 @@ import System
 
 
 class handleOutput:
-    def __init__(self):
+    def __init__(self,sys):
         self.arrive_time = {}
         self.depart_time = {}
         self.remainSystem = 0
 
 
-        self.system = System.System()
-
+        self.system = sys
+        self.SFL = 0
+        self.SCL = 0
         self.SPhL = 0  #photo
         self.SOL = 0  #outside
         self.SSCL = 0    #submiting complaint
@@ -47,6 +48,8 @@ class handleOutput:
 
         self.clockPhotography = 0
         self.clockOutside = 0
+        self.clockfiling = 0
+        self.clockcomplete = 0
         self.clockSubmitting = 0
         self.clockExpert = 0
         self.clockFiling = 0
@@ -85,6 +88,17 @@ class handleOutput:
         self.clockOutside = clock
         if state.Length_Queue_OutSide > self.MOL:
             self.MOL = state.Length_Queue_OutSide
+    def update_filing_surface(self,clock,state):
+        """ this function is for getting the output self.SFL  """
+
+        self.SFL += (clock - self.clockfiling) * state.Length_Queue_Filing
+        self.clockfiling = clock
+
+    def update_complete_surface(self, clock, state):
+        """ this function is for updating the output self.SCL  """
+
+        self.SCL += (clock - self.clockcomplete) * state.Length_Queue_Complete_the_case
+        self.clockcomplete = clock
 
     def update_submiting_surface(self,clock,state):
         """ this function is for getting the output self.MSCL and self.MSCL """
@@ -180,7 +194,7 @@ class handleOutput:
         for i in remainingtime:
             s += i
 
-        return [s/len(remainingtime),self.SPhL/clock,self.SOL / 600,self.SSCL / clock,\
+        return [s/len(remainingtime),self.SPhL/clock,self.SOL / clock,self.SSCL / clock,\
             self.SEL / clock,self.EFQT / clock,self.EWPT / clock,self.SPhCenter/(self.system.num_photography_workers*clock),\
             self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\
             self.max_Time_PhQ,self.max_Time_OQ,self.max_Time_SCL,self.max_Time_EL,self.sum_Time_phQ/(last_id + 1),self.sum_Time_OQ/(id+1),\
