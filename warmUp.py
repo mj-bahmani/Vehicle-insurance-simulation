@@ -38,39 +38,45 @@ class WarmUP:
         for i in range(self.warmup_Phq1.shape[0]):
             plt.plot(x, self.warmup_Phq1[i,:], label='Phq' + str(i))
 
-        smoothed = np.convolve(self.mean_Phq, np.ones(3) / 3)
-        plt.plot(x, smoothed, label='mean Phq',linewidth=5.0, color='red')
-        plt.legend('phq')
+        smoothed = np.convolve(self.mean_Phq, np.ones(3) / 3, mode='same')
+        plt.plot(x, smoothed, label='mean Phq',linewidth=3.0, color='red')
+        plt.title('phq')
         plt.show()
 
         for i in range(self.warmup_Oq1.shape[0]):
             plt.plot(x, self.warmup_Oq1[i,:], label='Oq' + str(i))
-        plt.plot(x, self.mean_Oq, label='mean Oq',linewidth=5.0,color='red')
-        plt.legend('Oq')
+
+        smoothed = np.convolve(self.mean_Oq, np.ones(3) / 3, mode='same')
+        plt.plot(x, smoothed, label='mean Oq',linewidth=3.0,color='red')
+        plt.title('Oq')
         plt.show()
 
         for i in range(self.warmup_fq1.shape[0]):
             plt.plot(x, self.warmup_fq1[i,:], label='fq' + str(i))
-        plt.plot(x, self.mean_fq, label='mean fq',linewidth=5.0,color='red')
-        plt.legend('fq')
+        smoothed = np.convolve(self.mean_fq, np.ones(3) / 3, mode='same')
+        plt.plot(x, smoothed, label='mean fq',linewidth=3.0,color='red')
+        plt.title('fq')
         plt.show()
 
         for i in range(self.warmup_eq1.shape[0]):
             plt.plot(x, self.warmup_eq1[i,:], label='eq' + str(i))
-        plt.plot(x, self.mean_eq, label='mean eq',linewidth=5.0,color='red')
-        plt.legend('eq')
+        smoothed = np.convolve(self.mean_eq, np.ones(3) / 3, mode='same')
+        plt.plot(x, smoothed, label='mean eq',linewidth=3,color='red')
+        plt.title('eq')
         plt.show()
 
         for i in range(self.warmup_cq1.shape[0]):
             plt.plot(x, self.warmup_cq1[i,:], label='cq' + str(i))
-        plt.plot(x, self.mean_cq, label='mean cq',linewidth=5.0,color='red')
-        plt.legend('cq')
+        smoothed = np.convolve(self.mean_cq, np.ones(3) / 3, mode='same')
+        plt.plot(x, smoothed, label='mean cq',linewidth=3.0,color='red')
+        plt.title('cq')
         plt.show()
 
         for i in range(self.warmup_scq1.shape[0]):
             plt.plot(x, self.warmup_scq1[i,:], label='scq' + str(i))
-        plt.plot(x, self.mean_scq, label='mean scq',linewidth=5.0 ,color='red')
-        plt.legend('scq')
+        smoothed = np.convolve(self.mean_scq, np.ones(3) / 3, mode='same')
+        plt.plot(x, smoothed, label='mean scq',linewidth=3.0 ,color='red')
+        plt.title('scq')
         plt.show()
 
 
