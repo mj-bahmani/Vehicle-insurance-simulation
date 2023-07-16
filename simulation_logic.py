@@ -125,7 +125,6 @@ def simulation(outputExcel=True,excelsaver=None):
                 if current_event['alone'] == 0:
                     if state.Length_Service_Photographer == system.num_photography_workers:
                         if state.Length_Queue_Photography == system.max_photography_queue_size:
-                            # handler.update_outside_surface(clock,state)
                             handler.arivingOQ[current_event['id']] = clock # add the id of customer if he enters the outside queue
 
                             state.Length_Queue_OutSide += 1
@@ -532,7 +531,7 @@ def runsimul(noreplication):
 
 getExcel = False
 
-num = 20
+num = 200
 noreplication = 30
 
 if not getExcel:
