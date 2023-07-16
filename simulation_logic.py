@@ -531,7 +531,7 @@ def runsimul(noreplication):
 
 getExcel = False
 
-num = 200
+num = 2000
 noreplication = 30
 
 if not getExcel:
