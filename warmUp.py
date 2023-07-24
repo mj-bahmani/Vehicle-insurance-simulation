@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.ndimage import gaussian_filter1d
+
 class WarmUP:
     def __init__(self, num):
         self.warmup_Phq = [[] for i in range(num)]
@@ -33,51 +35,84 @@ class WarmUP:
         self.mean_cq = np.mean(self.warmup_cq1, axis=0)
         self.mean_scq = np.mean(self.warmup_scq1, axis=0)
 
-    def draw_chart(self):
+
+    def smoother(self,kernel_size, array):
+        n = array.shape[0]
+        array1 = array.tolist()
+        output_list = []
+        for i in range(n):
+            output_list.append(sum(array1[max(i - kernel_size // 2, 2 * i - n + 1, 0):min(i + kernel_size // 2 + 1, 2 * i + 1, n)]) / (
+                    min(i + kernel_size // 2, 2 * i, n - 1) - max(i - kernel_size // 2, 2 * i - n + 1, 0) + 1))
+        return output_list
+    def draw_chart(self, kernel_size):
+        plt.figure(figsize=(20, 5))
         x = np.arange(0, self.warmup_Phq1.shape[1])
-        for i in range(self.warmup_Phq1.shape[0]):
-            plt.plot(x, self.warmup_Phq1[i,:], label='Phq' + str(i))
-
-        smoothed = np.convolve(self.mean_Phq, np.ones(3) / 3, mode='same')
-        plt.plot(x, smoothed, label='mean Phq',linewidth=3.0, color='red')
-        plt.title('phq')
+        plt.plot(x, self.mean_Phq, label='mean Phq',linewidth=3.0, color='red')
+        smoothed = self.smoother(kernel_size, self.mean_Phq)
+        plt.plot(x, smoothed, label='mean Phq',linewidth=3.0, color='k',)
+        plt.legend(['avg across replication', 'moving average'])
+        plt.title('mean length of Photography queue')
+        plt.xlabel("frame number")
+        plt.ylabel("length of Photography queue ")
         plt.show()
 
-        for i in range(self.warmup_Oq1.shape[0]):
-            plt.plot(x, self.warmup_Oq1[i,:], label='Oq' + str(i))
-
-        smoothed = np.convolve(self.mean_Oq, np.ones(3) / 3, mode='same')
-        plt.plot(x, smoothed, label='mean Oq',linewidth=3.0,color='red')
-        plt.title('Oq')
+        plt.figure(figsize=(20, 5))
+        smoothed = self.smoother(kernel_size, self.mean_Oq)
+        plt.plot(x, self.mean_Oq, label='mean Oq',linewidth=3.0, color='red')
+        plt.plot(x, smoothed, label='mean Oq',linewidth=3.0,color='k')
+        plt.legend(['avg across replication', 'moving average'])
+        plt.title('mean length of Outside queue')
+        plt.xlabel("frame number")
+        plt.ylabel("length of Outside queue ")
         plt.show()
 
-        for i in range(self.warmup_fq1.shape[0]):
-            plt.plot(x, self.warmup_fq1[i,:], label='fq' + str(i))
-        smoothed = np.convolve(self.mean_fq, np.ones(3) / 3, mode='same')
-        plt.plot(x, smoothed, label='mean fq',linewidth=3.0,color='red')
-        plt.title('fq')
+        plt.figure(figsize=(20, 5))
+        smoothed = self.smoother(kernel_size, self.mean_fq)
+        plt.plot(x, self.mean_fq, label='mean fq',linewidth=3.0,color='red')
+        plt.plot(x, smoothed, label='mean fq',linewidth=3.0,color='k')
+        print(self.mean_fq)
+        print(smoothed)
+        plt.legend(['avg across replication', 'moving average'])
+        plt.title('mean length of filing the case queue')
+        plt.xlabel("frame number")
+        plt.ylabel("length of filing the case queue ")
+
         plt.show()
 
-        for i in range(self.warmup_eq1.shape[0]):
-            plt.plot(x, self.warmup_eq1[i,:], label='eq' + str(i))
-        smoothed = np.convolve(self.mean_eq, np.ones(3) / 3, mode='same')
-        plt.plot(x, smoothed, label='mean eq',linewidth=3,color='red')
-        plt.title('eq')
+
+        plt.figure(figsize=(20, 5))
+        smoothed = self.smoother(kernel_size, self.mean_eq)
+        plt.plot(x, self.mean_eq, label='mean eq',linewidth=3,color='red')
+        plt.plot(x, smoothed, label='mean eq',linewidth=3,color='k')
+        # print(self.mean_eq)
+        # print(smoothed)
+        plt.legend(['avg across replication', 'moving average'])
+        plt.title('mean length of Expert queue')
+        plt.xlabel("frame number")
+        plt.ylabel("length of Expert queue ")
         plt.show()
 
-        for i in range(self.warmup_cq1.shape[0]):
-            plt.plot(x, self.warmup_cq1[i,:], label='cq' + str(i))
-        smoothed = np.convolve(self.mean_cq, np.ones(3) / 3, mode='same')
-        plt.plot(x, smoothed, label='mean cq',linewidth=3.0,color='red')
-        plt.title('cq')
+        plt.figure(figsize=(20, 5))
+        smoothed = self.smoother(kernel_size, self.mean_cq)
+        plt.plot(x, self.mean_cq, label='mean cq',linewidth=3.0,color='red')
+        plt.plot(x, smoothed, label='mean cq',linewidth=3.0,color='k')
+        plt.legend(['avg across replication', 'moving average'])
+        plt.title('mean length of complaint the case queue')
+        plt.xlabel("frame number")
+        plt.ylabel("length of complaint the case queue ")
         plt.show()
 
-        for i in range(self.warmup_scq1.shape[0]):
-            plt.plot(x, self.warmup_scq1[i,:], label='scq' + str(i))
-        smoothed = np.convolve(self.mean_scq, np.ones(3) / 3, mode='same')
-        plt.plot(x, smoothed, label='mean scq',linewidth=3.0 ,color='red')
-        plt.title('scq')
+        plt.figure(figsize=(20, 5))
+        smoothed = self.smoother(kernel_size, self.mean_scq)
+        plt.plot(x, self.mean_scq, label='mean scq',linewidth=3.0,color='red')
+        plt.plot(x, smoothed, label='mean scq',linewidth=3.0 ,color='k')
+        plt.legend(['avg across replication', 'moving average'])
+        plt.title('mean length of submitting the complaint queue')
+        plt.xlabel("frame number")
+        plt.ylabel("length of submitting the complaint queue ")
         plt.show()
+
+
 
 
     def clear_vars(self):

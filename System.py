@@ -3,7 +3,7 @@ class System:
     A class used to encapsulate the system settings for the simulation such as the number of workers in each service and the max queue sizes.
     """
 
-    def __init__(self, num_f_c):
+    def __init__(self, num_f_c, num_e):
         """
         Initializes the system settings for the simulation.
         """
@@ -15,7 +15,7 @@ class System:
         self.num_filing_completing_workers = num_f_c
 
         # Number of workers for the Expert service
-        self.num_expert_workers = 2
+        self.num_expert_workers = num_e
 
         # Number of workers for the Complaint Submission service
         self.num_submiting_complaint_workers = 1

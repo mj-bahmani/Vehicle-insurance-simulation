@@ -533,18 +533,15 @@ class mainSystem:
             self.simulation()
         self.warmup.res_2_numpy()
         self.warmup.cal_mean()
-        self.warmup.draw_chart()
+        self.warmup.draw_chart(7)
 
 
 env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7, 6, 8, 9,7, 0.1 )
 env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,3,3.5,4,8,0)
-sys1 = System.System(3)
-sys2 = System.System(4)
+sys1 = System.System(3,3)
+sys2 = System.System(4,3)
 
-simul1 = mainSystem(env1,sys1,100000, 500)
+simul1 = mainSystem(env1,sys1,21600, 60)
 simul1.run_simul(20)
 
-# simul =
-# a = mainSystem(env, System)
-# b =  mainSystem(env1, System1)
 
