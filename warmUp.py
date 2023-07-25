@@ -19,6 +19,14 @@ class WarmUP:
         self.previous_eq = 0
 
 
+        self.mean_complete_the_case_waiting_time = []
+        self.mean_filing_the_case_waiting_time = []
+        self.max_expert_queue_length = []
+        self.mean_expert_waiting_time = []
+        self.mean_photography_waiting_time = []
+        self.mean_whole_system_remain_time = []
+
+
     def res_2_numpy(self):
         self.warmup_Phq1 = np.array(self.warmup_Phq)
         self.warmup_Oq1 = np.array(self.warmup_Oq)
@@ -45,7 +53,7 @@ class WarmUP:
                     min(i + kernel_size // 2, 2 * i, n - 1) - max(i - kernel_size // 2, 2 * i - n + 1, 0) + 1))
         return output_list
     def draw_chart(self, kernel_size):
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(25, 5))
         x = np.arange(0, self.warmup_Phq1.shape[1])
         plt.plot(x, self.mean_Phq, label='mean Phq',linewidth=3.0, color='red')
         smoothed = self.smoother(kernel_size, self.mean_Phq)
@@ -56,7 +64,7 @@ class WarmUP:
         plt.ylabel("length of Photography queue ")
         plt.show()
 
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(25, 5))
         smoothed = self.smoother(kernel_size, self.mean_Oq)
         plt.plot(x, self.mean_Oq, label='mean Oq',linewidth=3.0, color='red')
         plt.plot(x, smoothed, label='mean Oq',linewidth=3.0,color='k')
@@ -66,7 +74,7 @@ class WarmUP:
         plt.ylabel("length of Outside queue ")
         plt.show()
 
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(25, 5))
         smoothed = self.smoother(kernel_size, self.mean_fq)
         plt.plot(x, self.mean_fq, label='mean fq',linewidth=3.0,color='red')
         plt.plot(x, smoothed, label='mean fq',linewidth=3.0,color='k')
@@ -76,11 +84,10 @@ class WarmUP:
         plt.title('mean length of filing the case queue')
         plt.xlabel("frame number")
         plt.ylabel("length of filing the case queue ")
-
         plt.show()
 
 
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(25, 5))
         smoothed = self.smoother(kernel_size, self.mean_eq)
         plt.plot(x, self.mean_eq, label='mean eq',linewidth=3,color='red')
         plt.plot(x, smoothed, label='mean eq',linewidth=3,color='k')
@@ -92,7 +99,7 @@ class WarmUP:
         plt.ylabel("length of Expert queue ")
         plt.show()
 
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(25, 5))
         smoothed = self.smoother(kernel_size, self.mean_cq)
         plt.plot(x, self.mean_cq, label='mean cq',linewidth=3.0,color='red')
         plt.plot(x, smoothed, label='mean cq',linewidth=3.0,color='k')
@@ -102,7 +109,7 @@ class WarmUP:
         plt.ylabel("length of complaint the case queue ")
         plt.show()
 
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(25, 5))
         smoothed = self.smoother(kernel_size, self.mean_scq)
         plt.plot(x, self.mean_scq, label='mean scq',linewidth=3.0,color='red')
         plt.plot(x, smoothed, label='mean scq',linewidth=3.0 ,color='k')
@@ -122,3 +129,9 @@ class WarmUP:
         self.previous_fq = 0
         self.previous_Phq = 0
         self.previous_Oq = 0
+
+    def mean_for_waiting_times(self):
+        return  (sum(self.mean_filing_the_case_waiting_time)/len(self.mean_filing_the_case_waiting_time),
+                 sum(self.mean_complete_the_case_waiting_time)/len(self.mean_complete_the_case_waiting_time),
+                 sum(self.mean_expert_waiting_time)/len(self.mean_expert_waiting_time),sum(self.mean_photography_waiting_time)/len(self.mean_photography_waiting_time),
+                 sum(self.mean_whole_system_remain_time)/len(self.mean_whole_system_remain_time), sum(self.max_expert_queue_length)/len(self.max_expert_queue_length))
