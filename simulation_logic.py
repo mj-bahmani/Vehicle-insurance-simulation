@@ -598,7 +598,7 @@ simul1 = mainSystem(env1,sys1,10000, 30, 5000)
 f1,c1,e1,ph1,r1,me1 = simul1.get_final_res(5, 40 )
 
 simul2 = mainSystem(env2,sys2,10000, 30, 5000)
-f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(5,40 )
+f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(5,40)
 
 
 
