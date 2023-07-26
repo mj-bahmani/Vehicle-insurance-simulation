@@ -5,11 +5,9 @@ Input Distributions and Event Types:
 
 1- Arrival:
     - System 1:
-        - Modeled with an Exponential distribution
         - Mean = 5 (time = 132000)
         - Warm-up time = 12000
     - System 2:
-        - Modeled with an Exponential distribution
         - Mean = 3.2 (time = 165000)
         - Warm-up time = 15000
 
