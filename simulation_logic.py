@@ -95,7 +95,16 @@ def simulation(outputExcel=True,excelsaver=None):
         a = current_event['id'] if 'id' in current_event.keys() else ''
 
         # these lines are for handeling and updating the cumulitive statistics
-
+        handler.update_filing_empty(clock, state)
+        handler.update_queue_parking_empty(clock, state)
+        handler.update_photography_surface(clock, state)
+        handler.update_outside_surface(clock, state)
+        handler.update_submiting_surface(clock, state)
+        handler.update_expert_surface(clock, state)
+        handler.update_Service_Photographer_surface(clock, state)
+        handler.update_Expert1_surface(clock, state)
+        handler.update_Expert2_surface(clock, state)
+        handler.update_Expert3_surface(clock, state)
 
         if outputExcel:# this is for outputing and excel file if it was selected
             excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
@@ -109,18 +118,6 @@ def simulation(outputExcel=True,excelsaver=None):
 
         Event_Type = current_event['Event Type']
         clock = current_event['Event Time']  # Advance time
-
-        handler.update_filing_empty(clock, state)
-        handler.update_queue_parking_empty(clock, state)
-        handler.update_photography_surface(clock, state)
-        handler.update_outside_surface(clock, state)
-        handler.update_submiting_surface(clock, state)
-        handler.update_expert_surface(clock, state)
-        handler.update_Service_Photographer_surface(clock, state)
-        handler.update_Expert1_surface(clock, state)
-        handler.update_Expert2_surface(clock, state)
-        handler.update_Expert3_surface(clock, state)
-
         if Event_Type == 'A': # this is for handeling arival event
             if current_event['alone'] == 1:
                 handler.alone_cars.append(current_event['id'])
