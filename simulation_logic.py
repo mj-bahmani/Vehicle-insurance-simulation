@@ -539,7 +539,7 @@ def runsimul(noreplication):
     return data
 
 
-getExcel = True
+getExcel = False
 
 num = 20
 noreplication = 1
