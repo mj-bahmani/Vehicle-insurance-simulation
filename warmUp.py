@@ -19,14 +19,6 @@ class WarmUP:
         self.previous_eq = 0
 
 
-        self.mean_complete_the_case_waiting_time = []
-        self.mean_filing_the_case_waiting_time = []
-        self.max_expert_queue_length = []
-        self.mean_expert_waiting_time = []
-        self.mean_photography_waiting_time = []
-        self.mean_whole_system_remain_time = []
-
-
     def res_2_numpy(self):
         self.warmup_Phq1 = np.array(self.warmup_Phq)
         self.warmup_Oq1 = np.array(self.warmup_Oq)
@@ -78,8 +70,6 @@ class WarmUP:
         smoothed = self.smoother(kernel_size, self.mean_fq)
         plt.plot(x, self.mean_fq, label='mean fq',linewidth=3.0,color='red')
         plt.plot(x, smoothed, label='mean fq',linewidth=3.0,color='k')
-        print(self.mean_fq)
-        print(smoothed)
         plt.legend(['avg across replication', 'moving average'],fontsize = 15)
         plt.title('mean length of filing the case queue',fontsize = 30)
         plt.xlabel("frame number",fontsize = 20)
@@ -92,8 +82,6 @@ class WarmUP:
         smoothed = self.smoother(kernel_size, self.mean_eq)
         plt.plot(x, self.mean_eq, label='mean eq',linewidth=3,color='red')
         plt.plot(x, smoothed, label='mean eq',linewidth=3,color='k')
-        # print(self.mean_eq)
-        # print(smoothed)
         plt.legend(['avg across replication', 'moving average'],fontsize = 15)
         plt.title('mean length of Expert queue',fontsize = 30)
         plt.xlabel("frame number",fontsize = 20)
@@ -130,9 +118,3 @@ class WarmUP:
         self.previous_fq = 0
         self.previous_Phq = 0
         self.previous_Oq = 0
-
-    def mean_for_waiting_times(self):
-        return  (sum(self.mean_filing_the_case_waiting_time)/len(self.mean_filing_the_case_waiting_time),
-                 sum(self.mean_complete_the_case_waiting_time)/len(self.mean_complete_the_case_waiting_time),
-                 sum(self.mean_expert_waiting_time)/len(self.mean_expert_waiting_time),sum(self.mean_photography_waiting_time)/len(self.mean_photography_waiting_time),
-                 sum(self.mean_whole_system_remain_time)/len(self.mean_whole_system_remain_time), sum(self.max_expert_queue_length)/len(self.max_expert_queue_length))

@@ -5,11 +5,10 @@ import System
 
 
 class handleOutput:
-    def __init__(self,sys,warmup_time):
+    def __init__(self,sys):
         self.arrive_time = {}
         self.depart_time = {}
         self.remainSystem = 0
-        self.warmup_time = warmup_time
 
 
         self.system = sys
@@ -74,24 +73,6 @@ class handleOutput:
         self.max_Time_SCL = 0
         self.max_Time_EL = 0
 
-        self.remain_filing_queue_waiting_time = 0
-        self.num_of_filing_queue_customer = 0
-        self.remain_complete_the_case_queue_waiting_time = 0
-        self.num_of_complete_the_case_queue_customer = 0
-
-        self.num_of_photography_queue_customer = 0
-        self.num_of_expert_queue_customer = 0
-        self.num_of_remain_in_system_customer = 0
-
-
-
-        self.ariving_FL = {}
-        self.depart_FL = {}
-
-        self.ariving_CL = {}
-        self.depart_CL = {}
-
-
     def update_photography_surface(self,clock,state):
         """ this function is for getting the output self.MPhL  and """
 
@@ -131,7 +112,7 @@ class handleOutput:
 
         self.SEL += (clock - self.clockExpert) * state.Length_Queue_Expert
         self.clockExpert = clock
-        if state.Length_Queue_Expert > self.MEL and clock > self.warmup_time:
+        if state.Length_Queue_Expert > self.MEL:
             self.MEL = state.Length_Queue_Expert
 
     def update_filing_empty(self,clock,state):
@@ -174,11 +155,10 @@ class handleOutput:
         if state.Length_Waiting_Parking > self.MWPL:
             self.MWPL = state.Length_Waiting_Parking
 
-    def update_sum_max_PhQ(self,time,arrive_time):
+    def update_sum_max_PhQ(self,time):
         """ this function is for getting the output self.sum_Time_phQ and self.max_Time_PhQ"""
-        if arrive_time >= self.warmup_time:
-            self.sum_Time_phQ += time
-            self.num_of_photography_queue_customer += 1
+
+        self.sum_Time_phQ += time
         if time > self.max_Time_PhQ:
             self.max_Time_PhQ = time
     def update_sum_max_OQ(self,time):
@@ -193,28 +173,17 @@ class handleOutput:
         self.sum_Time_SCL += time
         if time > self.max_Time_SCL:
             self.max_Time_SCL = time
-    def update_sum_max_EL(self,time, arrive_time):
+    def update_sum_max_EL(self,time):
         """ this function is for getting the output self.sum_Time_EL and self.max_Time_EL"""
-        if arrive_time >= self.warmup_time:
-            self.sum_Time_EL += time
-            self.num_of_expert_queue_customer += 1
+
+        self.sum_Time_EL += time
         if time > self.max_Time_EL:
             self.max_Time_EL = time
-    def update_sum_remaining_time(self,time,arrive_time):
+    def update_sum_remaining_time(self,time):
         """ this function is for getting the output self.remainSystem"""
-        if arrive_time >= self.warmup_time:
-            self.remainSystem += time
-            self.num_of_remain_in_system_customer += 1
+        self.remainSystem += time
 
-    def update_waiting_time_filing_case(self, time, arrive_time):
-        if arrive_time >= self.warmup_time:
-            self.remain_filing_queue_waiting_time += time
-            self.num_of_filing_queue_customer += 1
 
-    def update_wating_time_complete_case(self, time, arrive_time):
-        if arrive_time >= self.warmup_time:
-            self.remain_complete_the_case_queue_waiting_time += time
-            self.num_of_complete_the_case_queue_customer += 1
     def print_outputs(self,clock,last_id,id,state):
         """ this function is for getting the output """
         remainingtime = []
@@ -224,7 +193,8 @@ class handleOutput:
         s = 0
         for i in remainingtime:
             s += i
-        temp = None
+
+        temp =None
         try:
             temp = self.sum_Time_SCL/(state.noSubmitComplaint)
         except:
@@ -235,7 +205,6 @@ class handleOutput:
             self.SFilingCenter/(self.system.num_filing_completing_workers*clock),self.SExpertCenter/(self.system.num_expert_workers*clock),self.SComplaintCenter/(self.system.num_submiting_complaint_workers*clock),\
             self.max_Time_PhQ,self.max_Time_OQ,self.max_Time_SCL,self.max_Time_EL,self.sum_Time_phQ/(last_id + 1),self.sum_Time_OQ/(id+1),\
             temp,self.MPhL,self.MOL,self.MSCL,self.MEL,self.sum_Time_EL/(last_id+1),self.MWPL,self.alone_submited_complaint/(last_id+1)]
-
 
 
 

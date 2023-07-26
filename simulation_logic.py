@@ -99,9 +99,9 @@ class mainSystem:
         last_id_inside = 0
         system = self.system # this is parameters of the system such as num worker in each center
         i = 1
+        sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
         while running:
 
-            sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
 
 
             current_event = sorted_fel[0]  # Find imminent event
@@ -128,15 +128,7 @@ class mainSystem:
             handler.update_filing_surface(clock,state)
             handler.update_complete_surface(clock, state)
 
-            if outputExcel:# this is for outputing and excel file if it was selected
-                excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
-                                    state.Length_Service_Expert2, state.Length_Service_Expert3,
-                                    state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
-                                    state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
-                                    state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
-                                    handler.EFQT, handler.EWPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
-                                    , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
-                                       handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
+
 
 
             if Event_Type == 'A': # this is for handeling arival event
@@ -494,10 +486,20 @@ class mainSystem:
                     (handler.SSCL - self.warmup.previous_scq) / self.frameLength)
                 self.warmup.previous_scq = handler.SSCL
 
-            i += 1
+
             # removes from the queue and go to next step
             future_event_list.remove(current_event)
-
+            sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+            if outputExcel:# this is for outputing and excel file if it was selected
+                excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
+                                    state.Length_Service_Expert2, state.Length_Service_Expert3,
+                                    state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
+                                    state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
+                                    state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
+                                    handler.EFQT, handler.EWPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
+                                    , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
+                                       handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
+            i += 1
         #return to get the out puts
         return handler.print_outputs(clock,last_id_inside, id, state)
 
@@ -543,7 +545,6 @@ sys2 = System.System(4,3)
 
 simul1 = mainSystem(env1,sys1,21600, 30)
 simul1.run_simul(50)
-
 
 simul2 = mainSystem(env2,sys2,21600, 30)
 simul2.run_simul(50)
