@@ -6,8 +6,9 @@
 3. [Other Parameters](#parameters)
 4. [Staffing and Queuing Discipline](#staffing-and-queuing-discipline)
 5. [Outputs](#outputs)
-6. [Authors](#authors)
-7. [Documentation and Contribution](#documentation-and-contribution)
+6. [Branches](#branches)
+7. [Authors](#authors)
+8. [Documentation and Contribution](#documentation-and-contribution)
 
 ## Description
 
@@ -74,6 +75,16 @@ The simulation generates the following outputs:
 5. Probabilities that the Waiting Parking and Filling queue are empty.
 6. The percentage of customers who arrived alone and submitted a complaint.
 7. Mean time of remaining in the system.
+
+## <a name="branches"></a>Branches
+
+This repository contains three branches, each serving a specific purpose:
+
+1. **Main:** The main branch contains the primary simulation code and documentation.
+
+2. **Part2:** The part2 branch is dedicated to comparing two systems with different parameters. It helps us analyze the effects of increasing staff at each part of the insurance process or making other modifications.
+
+3. **Detached:** The detached branch is designed for finding the warm-up time of each system. The warm-up time is the period during which the queues transition from a transient state to a steady state.
 
 ## <a name="authors"></a>Authors 👥
 
