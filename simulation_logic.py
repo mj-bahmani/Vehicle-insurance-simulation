@@ -102,7 +102,7 @@ class mainSystem:
         last_id_inside = 0
         system = self.system # this is parameters of the system such as num worker in each center
         i = 1
-        sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+        sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'] )
         while running:
             current_event = sorted_fel[0]  # Find imminent event
             a = current_event['id'] if 'id' in current_event.keys() else '' # this is for getting the id of the car
