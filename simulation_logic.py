@@ -85,10 +85,9 @@ def simulation(outputExcel=True,excelsaver=None):
     last_id_inside = 0
     system = System.System() # this is parameters of the system such as num worker in each center
     i = 1
+    sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+
     while running:
-
-        sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
-
 
         current_event = sorted_fel[0]  # Find imminent event
 
@@ -540,7 +539,7 @@ def runsimul(noreplication):
     return data
 
 
-getExcel = False
+getExcel = True
 
 num = 20
 noreplication = 1
