@@ -607,7 +607,7 @@ f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(5,40)
 
 
 
-df1 = pd.DataFrame(map(list,zip(*[f1,f2])),columns =['sys1','sys2'])
+df1 = pd.DataFrame(map(list,zip(*[f1,f2])),columns =['sys1','sys2'] )
 df2 = pd.DataFrame(map(list,zip(*[c1,c2])),columns =['sys1','sys2'])
 df3 = pd.DataFrame(map(list,zip(*[e1,e2])),columns =['sys1','sys2'])
 df4 = pd.DataFrame(map(list,zip(*[ph1,ph2])),columns =['sys1','sys2'])
