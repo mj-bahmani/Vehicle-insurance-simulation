@@ -94,6 +94,9 @@ def simulation(outputExcel=True,excelsaver=None):
 
         a = current_event['id'] if 'id' in current_event.keys() else ''
 
+        Event_Type = current_event['Event Type']
+        clock = current_event['Event Time']  # Advance time
+
         # these lines are for handeling and updating the cumulitive statistics
         handler.update_filing_empty(clock, state)
         handler.update_queue_parking_empty(clock, state)
@@ -106,18 +109,8 @@ def simulation(outputExcel=True,excelsaver=None):
         handler.update_Expert2_surface(clock, state)
         handler.update_Expert3_surface(clock, state)
 
-        if outputExcel:# this is for outputing and excel file if it was selected
-            excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
-                                state.Length_Service_Expert2, state.Length_Service_Expert3,
-                                state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
-                                state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
-                                state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
-                                handler.EFQT, handler.EWPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
-                                , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
-                                   handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
 
-        Event_Type = current_event['Event Type']
-        clock = current_event['Event Time']  # Advance time
+
         if Event_Type == 'A': # this is for handeling arival event
             if current_event['alone'] == 1:
                 handler.alone_cars.append(current_event['id'])
@@ -125,7 +118,6 @@ def simulation(outputExcel=True,excelsaver=None):
                 if current_event['alone'] == 0:
                     if state.Length_Service_Photographer == system.num_photography_workers:
                         if state.Length_Queue_Photography == system.max_photography_queue_size:
-                            # handler.update_outside_surface(clock,state)
                             handler.arivingOQ[current_event['id']] = clock # add the id of customer if he enters the outside queue
 
                             state.Length_Queue_OutSide += 1
@@ -466,9 +458,27 @@ def simulation(outputExcel=True,excelsaver=None):
                 pass
             pass
 
-        i += 1
         # removes from the queue and go to next step
         future_event_list.remove(current_event)
+        sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+
+        if outputExcel:  # this is for outputing and excel file if it was selected
+            excelsaver.add_row_df(
+                [i, current_event['Event Time'], current_event['Event Type'], a, state.Length_Service_Photographer,
+                 state.Length_Service_Expert1,
+                 state.Length_Service_Expert2, state.Length_Service_Expert3,
+                 state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography,
+                 state.Length_Queue_Filing,
+                 state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
+                 state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking, handler.SPhL, handler.SOL,
+                 handler.SSCL, handler.SEL,
+                 handler.EFQT, handler.EWPT, handler.MPhL, handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter,
+                 handler.SFilingCenter
+                    , handler.SExpertCenter, handler.SComplaintCenter, handler.sum_Time_phQ, handler.sum_Time_OQ,
+                 handler.sum_Time_SCL, handler.sum_Time_EL,
+                 handler.max_Time_PhQ, handler.max_Time_OQ, handler.max_Time_SCL, handler.max_Time_EL, sorted_fel])
+
+        i += 1
 
     #return to get the out puts
     return handler.print_outputs(clock,last_id_inside, id, state)
@@ -530,10 +540,10 @@ def runsimul(noreplication):
     return data
 
 
-getExcel = True
+getExcel = False
 
 num = 20
-noreplication = 30
+noreplication = 1
 
 if not getExcel:
     # this is for getting the resullts
@@ -545,9 +555,8 @@ if not getExcel:
 else:
     #this is for getting the excel
     excelSaver = excelOutput.ExcelOutput()
-    for i in range(1):
+    for i in range(30):
         simulation(True,excelSaver)
         excelSaver.add_empty_row()
         excelSaver.add_empty_row()
     excelSaver.save_df()
-
