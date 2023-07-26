@@ -501,10 +501,9 @@ class mainSystem:
                     (handler.SSCL - self.warmup.previous_scq) / self.frameLength)
                 self.warmup.previous_scq = handler.SSCL
 
-
-
-            sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
             future_event_list.remove(current_event) # removes from the queue and go to next step
+            sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+
 
             if outputExcel:# this is for outputing and excel file if it was selected
                 excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
