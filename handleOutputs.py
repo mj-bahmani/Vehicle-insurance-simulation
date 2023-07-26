@@ -6,102 +6,102 @@ import System
 
 class handleOutput:
     def __init__(self,sys,warmup_time):
-        self.arrive_time = {}
-        self.depart_time = {}
+        self.arrive_time = {} # this is a dictionary that contains the time of arriving to system
+        self.depart_time = {} # this is a dictionary that contains the time of departing from system
         self.remainSystem = 0
         self.warmup_time = warmup_time
 
 
-        self.system = sys
+        self.system = sys # this is a class that contains the system variables
         self.SFL = 0
         self.SCL = 0
-        self.SPhL = 0  #photo
-        self.SOL = 0  #outside
-        self.SSCL = 0    #submiting complaint
-        self.SEL = 0    #expert
-        self.EFQT = 0   # filing empty time
-        self.EWPT = 0  #waiting parking
+        self.SPhL = 0  # the surface under photography length based on time
+        self.SOL = 0  # the surface under outside length based on time
+        self.SSCL = 0   # the surface under submiting complaint length based on time
+        self.SEL = 0    # the surface under expert length based on time
+        self.EFQT = 0   # filing empty time surface
+        self.EWPT = 0  #  waiting parking empty time surface
 
-        self.MPhL = 0  # photo
-        self.MOL = 0  # outside
-        self.MSCL = 0  # submiting complaint
-        self.MEL = 0  # expert
-        self.MWPL = 0  # waiting parking
+        self.MPhL = 0  # max length of photograaphy
+        self.MOL = 0   # max length of outside
+        self.MSCL = 0    # max length of submiting complaint
+        self.MEL = 0  # max length of expert
+        self.MWPL = 0  # max length of waiting parking
         # these are the variables described in the first part
-        self.arivingPhQ = {}
-        self.departPhQ = {}
-        self.arivingOQ = {}
-        self.departOQ = {}
-        self.arivingSCL = {}
-        self.departSCL = {}
-        self.arivingEL = {}
-        self.departEL = {}
+        self.arivingPhQ = {} # this is the dictionary describing the time each customer entered the photography queue
+        self.departPhQ = {} # this is the dictionary describing the time each customer departed the photography queue
+        self.arivingOQ = {} # this is the dictionary describing the time each customer entered the outside queue
+        self.departOQ = {} # this is the dictionary describing the time each customer departed the outside queue
+        self.arivingSCL = {} # this is the dictionary describing the time each customer entered the submiting complaint queue
+        self.departSCL = {} # this is the dictionary describing the time each customer departed the submiting complaint queue
+        self.arivingEL = {}     # this is the dictionary describing the time each customer entered the expert queue
+        self.departEL = {}     # this is the dictionary describing the time each customer departed the expert queue
 
-        self.arivingEL2 = {}
-        self.departEL2 = {}
-
-
-        self.SPhCenter = 0
-        self.SFilingCenter = 0
-        self.SExpertCenter = 0
-        self.SComplaintCenter = 0
+        self.arivingEL2 = {} # this is the dictionary describing the time each customer entered the expert queue for some reason that a customer may come to this queue more than one time
+        self.departEL2 = {} # this is the dictionary describing the time each customer departed the expert queue for some reason that a customer may come to this queue more than one time
 
 
-        self.clockPhotography = 0
-        self.clockOutside = 0
-        self.clockfiling = 0
-        self.clockcomplete = 0
-        self.clockSubmitting = 0
-        self.clockExpert = 0
-        self.clockFiling = 0
-        self.clockQueueParking = 0
-
-        self.clockService_Photographer = 0
-        self.clockExpert1 = 0
-        self.clockExpert2 = 0
-        self.clockExpert3 = 0
-
-        self.alone_cars = []
-        self.alone_submited_complaint = 0
-
-        self.sum_Time_phQ = 0
-        self.sum_Time_OQ = 0
-        self.sum_Time_SCL = 0
-        self.sum_Time_EL = 0
-
-        self.max_Time_PhQ = 0
-        self.max_Time_OQ = 0
-        self.max_Time_SCL = 0
-        self.max_Time_EL = 0
-
-        self.remain_filing_queue_waiting_time = 0
-        self.num_of_filing_queue_customer = 0
-        self.remain_complete_the_case_queue_waiting_time = 0
-        self.num_of_complete_the_case_queue_customer = 0
-
-        self.num_of_photography_queue_customer = 0
-        self.num_of_expert_queue_customer = 0
-        self.num_of_remain_in_system_customer = 0
+        self.SPhCenter = 0  # the surface under the number of busy workers in the photography center based on time
+        self.SFilingCenter = 0 # the surface under the number of busy workers in the filing center based on time
+        self.SExpertCenter = 0 # the surface under the number of busy workers in the expert center based on time
+        self.SComplaintCenter = 0 # the surface under the number of busy workers in the complaint center based on time
 
 
+        self.clockPhotography = 0# this is used to calculate the surface it keeps the last time we compute the surface under the photography length
+        self.clockOutside = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the outside length
+        self.clockfiling = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the filing length
+        self.clockcomplete = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the complete length
+        self.clockSubmitting = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the submitting length
+        self.clockExpert = 0    # this is used to calculate the surface it keeps the last time we compute the surface under the expert length
+        self.clockFiling = 0    # this is used to calculate the surface it keeps the last time we compute the surface under the filing length
+        self.clockQueueParking = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the queue parking length
 
-        self.ariving_FL = {}
-        self.depart_FL = {}
+        self.clockService_Photographer = 0# this is used to calculate the surface it keeps the last time we compute the surface under the number of busy workers in the photography center
+        self.clockExpert1 = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the number of busy workers in the complaint center
+        self.clockExpert2 = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the number of busy workers in the complaint center
+        self.clockExpert3 = 0 # this is used to calculate the surface it keeps the last time we compute the surface under the number of busy workers in the complaint center
 
-        self.ariving_CL = {}
-        self.depart_CL = {}
+        self.alone_cars = [] # this is a list that contains the number of cars that came alone to the system
+        self.alone_submited_complaint = 0 # this is a variable that contains the number of customers that came alone to the system and submited a complaint
+
+        self.sum_Time_phQ = 0 # this is a variable that contains the sum of time that customers spent in the photography queue
+        self.sum_Time_OQ = 0 # this is a variable that contains the sum of time that customers spent in the outside queue
+        self.sum_Time_SCL = 0 # this is a variable that contains the sum of time that customers spent in the submiting complaint queue
+        self.sum_Time_EL = 0 # this is a variable that contains the sum of time that customers spent in the expert queue
+
+        self.max_Time_PhQ = 0 # this is a variable that contains the max of time that customers spent in the photography queue
+        self.max_Time_OQ = 0 # this is a variable that contains the max of time that customers spent in the outside queue
+        self.max_Time_SCL = 0   # this is a variable that contains the max of time that customers spent in the submiting complaint queue
+        self.max_Time_EL = 0   # this is a variable that contains the max of time that customers spent in the expert queue
+
+        self.remain_filing_queue_waiting_time = 0 # this is a variable that contains the sum of time that customers spent in the filing queue
+        self.num_of_filing_queue_customer = 0 # this is a variable that contains the number of customers that came to the filing queue
+        self.remain_complete_the_case_queue_waiting_time = 0 # this is a variable that contains the sum of time that customers spent in the complete the case queue
+        self.num_of_complete_the_case_queue_customer = 0 # this is a variable that contains the number of customers that came to the complete the case queue
+
+        self.num_of_photography_queue_customer = 0 # this is a variable that contains the number of customers that came to the photography queue
+        self.num_of_expert_queue_customer = 0 # this is a variable that contains the number of customers that came to the expert queue
+        self.num_of_remain_in_system_customer = 0 # this is a variable that contains the number of customers that came to the system and remain in the system
+
+
+
+        self.ariving_FL = {} # this is the dictionary describing the time each customer entered the filing queue
+        self.depart_FL = {} # this is the dictionary describing the time each customer departed the filing queue
+
+        self.ariving_CL = {} # this is the dictionary describing the time each customer entered the complete the case queue
+        self.depart_CL = {} # this is the dictionary describing the time each customer departed the complete the case queue
 
 
     def update_photography_surface(self,clock,state):
-        """ this function is for getting the output self.MPhL  and """
+        """ this function is for getting the output self.MPhL  and  self.SPhL"""
 
-        self.SPhL += (clock - self.clockPhotography) * state.Length_Queue_Photography
-        self.clockPhotography = clock
-        if state.Length_Queue_Photography > self.MPhL:
-            self.MPhL = state.Length_Queue_Photography
+        self.SPhL += (clock - self.clockPhotography) * state.Length_Queue_Photography # this is the surface under the number of customers in the photography queue
+        self.clockPhotography = clock # this is the last time we compute the surface under the number of customers in the photography queue
+        if state.Length_Queue_Photography > self.MPhL: # this is the maximum number of customers in the photography queue
+            self.MPhL = state.Length_Queue_Photography # this is the maximum number of customers in the photography queue
 
     def update_outside_surface(self,clock,state):
-        """ this function is for getting the output self.MOL  and self.MOL"""
+        """ this function is for getting the output self.MOL  and self.SOL"""
 
         self.SOL += (clock - self.clockOutside) * state.Length_Queue_OutSide
         self.clockOutside = clock
@@ -120,7 +120,7 @@ class handleOutput:
         self.clockcomplete = clock
 
     def update_submiting_surface(self,clock,state):
-        """ this function is for getting the output self.MSCL and self.MSCL """
+        """ this function is for getting the output self.MSCL and self.SSCL"""
 
         self.SSCL += (clock - self.clockSubmitting) * state.Length_Queue_Submitting_Complaint
         self.clockSubmitting = clock
@@ -207,11 +207,13 @@ class handleOutput:
             self.num_of_remain_in_system_customer += 1
 
     def update_waiting_time_filing_case(self, time, arrive_time):
+        """ this function is for getting the output self.remain_filing_queue_waiting_time"""
         if arrive_time >= self.warmup_time:
             self.remain_filing_queue_waiting_time += time
             self.num_of_filing_queue_customer += 1
 
     def update_wating_time_complete_case(self, time, arrive_time):
+        """ this function is for getting the output self.remain_complete_the_case_queue_waiting_time"""
         if arrive_time >= self.warmup_time:
             self.remain_complete_the_case_queue_waiting_time += time
             self.num_of_complete_the_case_queue_customer += 1
