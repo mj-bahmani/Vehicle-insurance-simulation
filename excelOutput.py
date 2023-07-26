@@ -18,7 +18,7 @@ class ExcelOutput:
                         'sum_Time_OQ', 'sum_Time_SCL', 'sum_Time_EL', 'max_Time_PhQ', 'max_Time_OQ',
                         'max_Time_SCL', 'max_Time_EL', 'future event list']
 
-        self.df = pd.DataFrame(columns=column_names)
+        self.df = pd.DataFrame(columns=column_names) # Create a new DataFrame with the given column names
 
 
     def add_row_df(self, data):
@@ -28,17 +28,17 @@ class ExcelOutput:
         Parameters:
         data (list): A list of simulation output data to be added as a new row.
         """
-        self.df.loc[self.df.shape[0]] = data
+        self.df.loc[self.df.shape[0]] = data # Add a new row to the DataFrame with the given data
 
 
     def save_df(self):
         """
         Saves the current DataFrame to a CSV file named 'output.csv'.
         """
-        self.df.to_csv("output.csv", index=False)
+        self.df.to_csv("output.csv", index=False) # Save the DataFrame to a CSV file
 
     def add_empty_row(self):
         """
         Adds an empty row at the end of the DataFrame.
         """
-        self.df.loc[self.df.shape[0]] = [None] * len(self.df.columns)
+        self.df.loc[self.df.shape[0]] = [None] * len(self.df.columns) # Add an empty row to the DataFrame
