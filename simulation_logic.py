@@ -617,7 +617,7 @@ with pd.ExcelWriter("output3.xlsx") as writer:
     # use to_excel function and specify the sheet_name and index
     # to store the dataframe in specified sheet
 
-    df1.to_excel(writer,sheet_name="filing_avg_times", index=False)
+    df1.to_excel(writer,sheet_name="filing_avg_times", index=False )
     df2.to_excel(writer,sheet_name="completing_avg_times", index=False)
     df3.to_excel(writer,sheet_name="expert_avg_times", index=False)
     df4.to_excel(writer,sheet_name="photography_avg_times", index=False)
