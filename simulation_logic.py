@@ -563,8 +563,8 @@ class mainSystem:
         for i in range(repeatTimes):
             self.simulation()
         a,b,c,d,e,f = self.warmup.mean_for_waiting_times()
-        print(f'the average waiting time for filing queue is {a} minutes')
-        print(f'the average waiting time for complete the case queue is {b} minutes')
+        # print(f'the average waiting time for filing queue is {a} minutes')
+        # print(f'the average waiting time for complete the case queue is {b} minutes')
         return a,b,c,d,e,f
     def get_final_res(self, replication, repeatTimes):
 
@@ -596,12 +596,14 @@ sys2 = System.System(4,3)
 # simul1 = mainSystem(env1,sys1,21600, 30)
 # simul1.run_simul(20)
 
+# simul2 = mainSystem(env2,sys2,21600, 30)
+# simul2.run_simul(20)
 
-simul1 = mainSystem(env1,sys1,10000, 30, 5000)
-f1,c1,e1,ph1,r1,me1 = simul1.get_final_res(5, 40 )
+simul1 = mainSystem(env1,sys1,132000, 30, 12000)
+f1,c1,e1,ph1,r1,me1 = simul1.get_final_res(20, 50 )
 
-simul2 = mainSystem(env2,sys2,10000, 30, 5000)
-f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(5,40)
+simul2 = mainSystem(env2,sys2,165000, 30, 15000)
+f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(20,50)
 
 
 
@@ -618,7 +620,7 @@ with pd.ExcelWriter("output3.xlsx") as writer:
     # use to_excel function and specify the sheet_name and index
     # to store the dataframe in specified sheet
 
-    df1.to_excel(writer,sheet_name="filing_avg_times", index=False)
+    df1.to_excel(writer,sheet_name="filing_avg_times", index=False )
     df2.to_excel(writer,sheet_name="completing_avg_times", index=False)
     df3.to_excel(writer,sheet_name="expert_avg_times", index=False)
     df4.to_excel(writer,sheet_name="photography_avg_times", index=False)
