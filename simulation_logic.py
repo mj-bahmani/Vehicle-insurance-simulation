@@ -52,12 +52,11 @@ import statisticalUtils
 import warmUp
 from States import States
 from handleOutputs import handleOutput
-from openpyxl.workbook import Workbook
 
 
 
 class mainSystem:
-    def __init__(self, env, system,time, frameLength, warmup_time):
+    def __init__(self, env, system,time, frameLength):
         self.env = env
         self.system = system
         self.statutil = statisticalUtils.statistics()
@@ -65,8 +64,6 @@ class mainSystem:
         self.frameLength = frameLength
         self.warmup = None
         self.rep_number = None
-        self.warmup_Time = warmup_time
-
 
     def starting_state(self, env):
         """ this is a function to evaluate the initial state of FEL in simulation"""
@@ -80,8 +77,8 @@ class mainSystem:
         is_alone = 1 if r < env.being_alone_probability else 0
         # add the first event
 
-        # for i in range(self.time//self.frameLength-2):
-        #     future_event_list.append({'Event Type': 'Frame_END', 'Event Time': (i+1)*self.frameLength})
+        for i in range(self.time//self.frameLength-2):
+            future_event_list.append({'Event Type': 'Frame_END', 'Event Time': (i+1)*self.frameLength})
 
         future_event_list.append({'Event Type': 'A','alone': is_alone, 'id': 0, 'Event Time': 0})  # This is an Event
         future_event_list.append({'Event Type': 'END', 'Event Time': self.time})
@@ -96,14 +93,17 @@ class mainSystem:
         envparam = self.env # this to handle the parameters such as rate of service and ....
         state, future_event_list = self.starting_state(envparam)
         clock = 0
-        handler = handleOutput(self.system, self.warmup_Time) # handling out puts
+        handler = handleOutput(self.system) # handling out puts
         running = True
         id = 1
         last_id_inside = 0
         system = self.system # this is parameters of the system such as num worker in each center
         i = 1
         while running:
+
             sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+
+
             current_event = sorted_fel[0]  # Find imminent event
 
             a = current_event['id'] if 'id' in current_event.keys() else ''
@@ -198,7 +198,7 @@ class mainSystem:
                     customer = state.waiting_Queue_Photography.pop(0)
                     handler.departPhQ[customer['id']] = clock
                     # update the statistics using the id of them
-                    handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']],handler.arivingPhQ[customer['id']])
+                    handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']])
                     if state.Length_Queue_Parking == 0:# if the queue was full get one of then and them and first check the parking then the outside and do that
 
                         future_event_list.append({'Event Type': 'OIN', 'Event Time': clock })
@@ -224,7 +224,7 @@ class mainSystem:
                     state.Length_Queue_Photography -= 1
                     customer = state.waiting_Queue_Photography.pop(0)
                     handler.departPhQ[customer['id']] = clock
-                    handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']],handler.arivingPhQ[customer['id']])
+                    handler.update_sum_max_PhQ(handler.departPhQ[customer['id']]-handler.arivingPhQ[customer['id']])
 
                     future_event_list.append({'Event Type': 'DP','id': customer['id']  ,'Event Time': clock + self.sample_exponential(1/envparam.Photography_service)})
 
@@ -232,7 +232,6 @@ class mainSystem:
 
                 if state.Length_Service_Expert1 == system.num_filing_completing_workers:
                     state.Length_Queue_Filing += 1
-                    handler.ariving_FL[current_event['id']] = clock
                     state.waiting_Queue_Filing.append({'id': current_event['id']})
 
                 else:
@@ -250,10 +249,7 @@ class mainSystem:
                     # then if it was empty check the filing queue due to the priority
 
                         state.Length_Queue_Filing -= 1
-
                         customer = state.waiting_Queue_Filing.pop(0)
-                        handler.depart_FL[customer['id']] = clock
-                        handler.update_waiting_time_filing_case(handler.depart_FL[customer['id']]-handler.ariving_FL[customer['id']], handler.ariving_FL[customer['id']])
                         future_event_list.append({'Event Type': 'DF','id': customer['id'], 'Event Time': clock + self.sample_triangular(
                         envparam.Filling_the_case_min,envparam.Filling_the_case_max,envparam.Filling_the_case_mode)})
                     pass
@@ -262,8 +258,6 @@ class mainSystem:
 
                     state.Length_Queue_Complete_the_case -= 1
                     customer = state.waiting_Queue_Complete_the_case.pop(0)
-                    handler.depart_CL[customer['id']] = clock
-                    handler.update_wating_time_complete_case(handler.depart_CL[customer['id']]-handler.ariving_CL[customer['id']], handler.ariving_CL[customer['id']])
                     future_event_list.append({'Event Type': 'DC','id': customer['id'] ,'Event Time': clock + self.sample_triangular(
                         envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
 
@@ -289,7 +283,7 @@ class mainSystem:
                     last_id_inside = current_event['id']
                 handler.depart_time[current_event['id']] = clock
                 # updating the sum of remaing time each person has this is actually shows each person epend how much time in the system
-                handler.update_sum_remaining_time(handler.depart_time[current_event['id']] - handler.arrive_time[current_event['id']],handler.arrive_time[current_event['id']])
+                handler.update_sum_remaining_time(handler.depart_time[current_event['id']] - handler.arrive_time[current_event['id']])
 
                 if state.Length_Queue_Complete_the_case == 0:# if no one was in the queue of completing check the filing queue
                     # due to the priority and if so set one worke to idle
@@ -300,10 +294,6 @@ class mainSystem:
 
                         state.Length_Queue_Filing -= 1
                         customer = state.waiting_Queue_Filing.pop(0)
-                        handler.depart_FL[customer['id']] = clock
-                        handler.update_waiting_time_filing_case(
-                            handler.depart_FL[customer['id']] - handler.ariving_FL[customer['id']],
-                            handler.ariving_FL[customer['id']])
                         future_event_list.append(
                             {'Event Type': 'DF', 'id': customer['id'], 'Event Time': clock + self.sample_triangular(
                         envparam.Filling_the_case_min,envparam.Filling_the_case_max,envparam.Filling_the_case_mode)})
@@ -311,10 +301,6 @@ class mainSystem:
                 else:
                     state.Length_Queue_Complete_the_case -= 1
                     customer = state.waiting_Queue_Complete_the_case.pop(0)
-                    handler.depart_CL[customer['id']] = clock
-                    handler.update_wating_time_complete_case(
-                        handler.depart_CL[customer['id']] - handler.ariving_CL[customer['id']],
-                        handler.ariving_CL[customer['id']])
                     future_event_list.append(
                         {'Event Type': 'DC', 'id': customer['id'], 'Event Time': clock + self.sample_triangular(
                         envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
@@ -333,12 +319,12 @@ class mainSystem:
                     if customer['id'] in handler.departEL.keys():
 
                         handler.departEL2[customer['id']] = clock
-                        handler.update_sum_max_EL(handler.departEL2[customer['id']]-handler.arivingEL2[customer['id']], handler.arivingEL2[customer['id']])
+                        handler.update_sum_max_EL(handler.departEL2[customer['id']]-handler.arivingEL2[customer['id']])
                     else:
                         #this part is for the sake of that the a customer can be in the queue of expert center more than one time some we are handleing that with another
                         # dictionary to halp make the statistics be correct
                         handler.departEL[customer['id']] = clock
-                        handler.update_sum_max_EL(handler.departEL[customer['id']]-handler.arivingEL[customer['id']],handler.arivingEL[customer['id']])
+                        handler.update_sum_max_EL(handler.departEL[customer['id']]-handler.arivingEL[customer['id']])
 
                     future_event_list.append({'Event Type': 'DE','id': customer['id'], 'complaint': customer['complaint'], 'Event Time': clock + self.sample_exponential(1/envparam.Expert_service)})
 
@@ -346,7 +332,6 @@ class mainSystem:
                     # in else sent it to the queu and update the dictionary of ariving time
                     if state.Length_Service_Expert1 == system.num_filing_completing_workers:
                         state.Length_Queue_Complete_the_case += 1
-                        handler.ariving_CL[current_event['id']] = clock
                         state.waiting_Queue_Complete_the_case.append({'id':current_event['id']})
 
 
@@ -477,12 +462,7 @@ class mainSystem:
                     state.waiting_Queue_OutSide.clear()
 
             elif Event_Type == "END":
-                self.warmup.mean_filing_the_case_waiting_time.append(handler.remain_filing_queue_waiting_time / handler.num_of_filing_queue_customer)
-                self.warmup.mean_complete_the_case_waiting_time.append(handler.remain_complete_the_case_queue_waiting_time / handler.num_of_complete_the_case_queue_customer)
-                self.warmup.mean_expert_waiting_time.append(handler.sum_Time_EL / handler.num_of_expert_queue_customer)
-                self.warmup.mean_photography_waiting_time.append(handler.sum_Time_phQ / handler.num_of_photography_queue_customer)
-                self.warmup.mean_whole_system_remain_time.append(handler.remainSystem/ handler.num_of_remain_in_system_customer)
-                self.warmup.max_expert_queue_length.append(handler.MEL)
+
                 running = False
             elif Event_Type == 'Frame_END':
                 handler.update_photography_surface(clock, state)
@@ -555,71 +535,15 @@ class mainSystem:
         self.warmup.cal_mean()
         self.warmup.draw_chart(7)
 
-    def run_simul_for_mean(self, repeatTimes):
-        self.warmup = warmUp.WarmUP(repeatTimes)
-        for i in range(repeatTimes):
-            self.simulation()
-        a,b,c,d,e,f = self.warmup.mean_for_waiting_times()
-        # print(f'the average waiting time for filing queue is {a} minutes')
-        # print(f'the average waiting time for complete the case queue is {b} minutes')
-        return a,b,c,d,e,f
-    def get_final_res(self, replication, repeatTimes):
-
-        filing_avg_times = []
-        completing_avg_times = []
-        expert_avg_times = []
-        photography_avg_times = []
-        whole_system_avg_times = []
-        max_expert_queue_length = []
-        for i in range(replication):
-            a,b,c,d,e,f = self.run_simul_for_mean(repeatTimes)
-            filing_avg_times.append(a)
-            completing_avg_times.append(b)
-            expert_avg_times.append(c)
-            photography_avg_times.append(d)
-            whole_system_avg_times.append(e)
-            max_expert_queue_length.append(f)
-
-
-        return filing_avg_times,completing_avg_times,expert_avg_times,photography_avg_times,whole_system_avg_times,max_expert_queue_length
-
-
 
 env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7, 6, 8, 9,9, 0.1 )
 env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,3,3.5,4,8,0)
 sys1 = System.System(3,3)
 sys2 = System.System(4,3)
 
-# simul1 = mainSystem(env1,sys1,21600, 30)
-# simul1.run_simul(20)
-
-# simul2 = mainSystem(env2,sys2,21600, 30)
-# simul2.run_simul(20)
-
-simul1 = mainSystem(env1,sys1,132000, 30, 12000)
-f1,c1,e1,ph1,r1,me1 = simul1.get_final_res(20, 50 )
-
-simul2 = mainSystem(env2,sys2,165000, 30, 15000)
-f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(20,50)
+simul1 = mainSystem(env1,sys1,21600, 30)
+simul1.run_simul(50)
 
 
-
-
-
-df1 = pd.DataFrame(map(list,zip(*[f1,f2])),columns =['sys1','sys2'])
-df2 = pd.DataFrame(map(list,zip(*[c1,c2])),columns =['sys1','sys2'])
-df3 = pd.DataFrame(map(list,zip(*[e1,e2])),columns =['sys1','sys2'])
-df4 = pd.DataFrame(map(list,zip(*[ph1,ph2])),columns =['sys1','sys2'])
-df5 = pd.DataFrame(map(list,zip(*[r1,r2])),columns =['sys1','sys2'])
-df6 = pd.DataFrame(map(list,zip(*[me1,me2])),columns =['sys1','sys2'])
-
-with pd.ExcelWriter("output3.xlsx") as writer:
-    # use to_excel function and specify the sheet_name and index
-    # to store the dataframe in specified sheet
-
-    df1.to_excel(writer,sheet_name="filing_avg_times", index=False )
-    df2.to_excel(writer,sheet_name="completing_avg_times", index=False)
-    df3.to_excel(writer,sheet_name="expert_avg_times", index=False)
-    df4.to_excel(writer,sheet_name="photography_avg_times", index=False)
-    df5.to_excel(writer,sheet_name="whole_system_avg_times", index=False)
-    df6.to_excel(writer,sheet_name="max_expert_queue_length", index=False)
+simul2 = mainSystem(env2,sys2,21600, 30)
+simul2.run_simul(50)
