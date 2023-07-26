@@ -3,12 +3,12 @@
 Input Distributions and Event Types:
     1- Arrival: Depends on weather and time, modeled with an Exponential distribution
     2- Partner Arrival: Exponential distribution with mean = 30 minutes
-    3- Photography Service: Modeled with an Exponential distribution (lambda=6)
-    4- Single Car Waiting: Follows an Exponential distribution (lambda=30)
+    3- Photography Service: Modeled with an Exponential distribution (lambda=1/6)
+    4- Single Car Waiting: Follows an Exponential distribution (lambda=1/30)
     5- Filling the Case: Service time follows a Triangular distribution (min=5, mode=6, max=7)
-    6- Expert Service: Modeled with an Exponential distribution (lambda=9)
+    6- Expert Service: Modeled with an Exponential distribution (lambda=1/9)
     7- Case Completion: Service time follows a Triangular distribution (min=6, mode=8, max=9)
-    8- Complaint Service: Modeled with an Exponential distribution (lambda=15)
+    8- Complaint Service: Modeled with an Exponential distribution (lambda=1/15)
 
 Additional Parameters:
     1- Probability that a car arrives alone: 0.3
