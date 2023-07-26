@@ -530,7 +530,7 @@ def runsimul(noreplication):
     return data
 
 
-getExcel = False
+getExcel = True
 
 num = 20
 noreplication = 30
@@ -544,8 +544,8 @@ if not getExcel:
     statutil.compute_confidence_interval()
 else:
     #this is for getting the excel
-    excelSaver = excelOutput.exceloutput()
-    for i in range(30):
+    excelSaver = excelOutput.ExcelOutput()
+    for i in range(1):
         simulation(True,excelSaver)
         excelSaver.add_empty_row()
         excelSaver.add_empty_row()
