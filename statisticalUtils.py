@@ -2,6 +2,11 @@ import numpy as np
 import scipy.stats as stats
 class statistics:
     def __init__(self):
+        """ this class is for calculating the statistics of the simulation and save them in a dictionary so we can use them later
+        in this class we use the following variables:
+
+        """
+
         self.remain_system = []
         self.APhL = []  # photo
         self.AOL = []  # outside
@@ -24,7 +29,6 @@ class statistics:
         self.AFilingCenter = []
         self.AExpertCenter = []
         self.AComplaintCenter = []
-
         self.mean_in_PHQ = []
         self.mean_in_outside = []
         self.mean_in_SCL = []
@@ -60,8 +64,9 @@ class statistics:
                         }
         pass
     def add_static(self,data):
-        self.remain_system.append(data[0])
-        self.APhL.append(data[1])
+        """ this function is for adding the data of the simulation to the dictionary to calculate the statistics of the simulation"""
+        self.remain_system.append(data[0]) # remain system
+        self.APhL.append(data[1]) # photo
         self.AOL.append(data[2])
         self.ASCL.append(data[3])
         self.AEL.append(data[4])
@@ -89,6 +94,7 @@ class statistics:
 
 
     def find_statistic(self):
+        """ this function is for calculating the statistics of the simulation and save them in a dictionary so we can use them later"""
         data_dict = {
             'remain_system': np.array(self.remain_system),
             'APhL': np.array(self.APhL),
@@ -116,16 +122,16 @@ class statistics:
             'MWPL': np.array(self.MWPL),
             'PASC': np.array(self.PASC)
 
-        }
-        mean_dict = {}
+        }   # Create dictionary of data
+        mean_dict = {} # Create empty dictionary
 
-        for var_name, var_data in data_dict.items():
-            mean = np.mean(var_data)
-            mean_dict[var_name] = mean
+        for var_name, var_data in data_dict.items(): # Loop over items in dictionary
+            mean = np.mean(var_data) # Calculate mean
+            mean_dict[var_name] = mean # Add to dictionary
         return mean_dict
 
     def add_for_confidence_interval(self,mean_dict):
-
+        """ this function is for adding the data of the simulation to the dictionary to calculate the statistics of the simulation"""
 
         # Iterate over items in mean_dict
         for key, value in mean_dict.items():
@@ -134,6 +140,7 @@ class statistics:
             # (Replace 'process_value(value)' with your actual data processing)
             self.processdata[key].append(mean_dict[key])
     def compute_confidence_interval(self):
+        """ this function is for calculating the confidence interval of the simulation and save them in a dictionary so we can use them later"""
         for key, values in self.processdata.items():
             if values:  # If the list is not empty
                 mean = np.mean(values)
