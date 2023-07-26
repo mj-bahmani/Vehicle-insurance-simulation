@@ -102,20 +102,17 @@ class mainSystem:
         last_id_inside = 0
         system = self.system # this is parameters of the system such as num worker in each center
         i = 1
+        sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
         while running:
-            sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
             current_event = sorted_fel[0]  # Find imminent event
+            a = current_event['id'] if 'id' in current_event.keys() else '' # this is for getting the id of the car
 
-            a = current_event['id'] if 'id' in current_event.keys() else ''
-
-
-
-            Event_Type = current_event['Event Type']
+            Event_Type = current_event['Event Type'] # Find event type
             clock = current_event['Event Time']  # Advance time
 
 
             # these lines are for handeling and updating the cumulitive statistics
-            handler.update_filing_empty(clock, state)
+            handler.update_filing_empty(clock, state) # this is for updating the cumulitive statistics
             handler.update_queue_parking_empty(clock, state)
             handler.update_photography_surface(clock, state)
             handler.update_outside_surface(clock, state)
@@ -128,19 +125,9 @@ class mainSystem:
             handler.update_filing_surface(clock,state)
             handler.update_complete_surface(clock, state)
 
-            if outputExcel:# this is for outputing and excel file if it was selected
-                excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
-                                    state.Length_Service_Expert2, state.Length_Service_Expert3,
-                                    state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
-                                    state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
-                                    state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
-                                    handler.EFQT, handler.EWPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
-                                    , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
-                                       handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
-
 
             if Event_Type == 'A': # this is for handeling arival event
-                if current_event['alone'] == 1:
+                if current_event['alone'] == 1: # if the car arrives alone
                     handler.alone_cars.append(current_event['id'])
                 if clock < self.time:
                     if current_event['alone'] == 0:
@@ -514,11 +501,27 @@ class mainSystem:
                     (handler.SSCL - self.warmup.previous_scq) / self.frameLength)
                 self.warmup.previous_scq = handler.SSCL
 
-            i += 1
-            # removes from the queue and go to next step
-            future_event_list.remove(current_event)
 
-        #return to get the out puts
+
+            sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
+            future_event_list.remove(current_event) # removes from the queue and go to next step
+
+            if outputExcel:# this is for outputing and excel file if it was selected
+                excelsaver.add_row_df([i,current_event['Event Time'],  current_event['Event Type'],a,state.Length_Service_Photographer,state.Length_Service_Expert1,
+                                    state.Length_Service_Expert2, state.Length_Service_Expert3,
+                                    state.Length_Queue_Parking, state.Length_Queue_OutSide, state.Length_Queue_Photography, state.Length_Queue_Filing,
+                                    state.Length_Queue_Complete_the_case, state.Length_Queue_Expert,
+                                    state.Length_Queue_Submitting_Complaint, state.Length_Waiting_Parking,handler.SPhL, handler.SOL, handler.SSCL, handler.SEL,
+                                    handler.EFQT, handler.EWPT, handler.MPhL ,handler.MOL, handler.MSCL, handler.MEL, handler.SPhCenter, handler.SFilingCenter
+                                    , handler.SExpertCenter, handler.SComplaintCenter,handler.sum_Time_phQ,handler.sum_Time_OQ,handler.sum_Time_SCL,handler.sum_Time_EL,
+                                       handler.max_Time_PhQ,handler.max_Time_OQ,handler.max_Time_SCL,handler.max_Time_EL, sorted_fel])
+
+
+            i += 1
+
+
+
+        #return to get the outputs
         return handler.print_outputs(clock,last_id_inside, id, state)
 
         print('done')
