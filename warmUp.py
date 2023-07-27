@@ -140,6 +140,9 @@ class WarmUP:
 
     def mean_for_waiting_times(self):
         """ this function is used to calculate the mean of the waiting times"""
+
+
+
         return  (sum(self.mean_filing_the_case_waiting_time)/len(self.mean_filing_the_case_waiting_time),
                  sum(self.mean_complete_the_case_waiting_time)/len(self.mean_complete_the_case_waiting_time),
                  sum(self.mean_expert_waiting_time)/len(self.mean_expert_waiting_time),sum(self.mean_photography_waiting_time)/len(self.mean_photography_waiting_time),

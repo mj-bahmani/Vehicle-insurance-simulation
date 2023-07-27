@@ -229,7 +229,7 @@ class mainSystem:
 
                         else:
                             state.Length_Service_Photographer += 1 # increase the length of photography service
-
+                            handler.update_sum_max_PhQ(0,clock)
                             future_event_list.append({'Event Type': 'DP', 'id' : current_event['id'], 'Event Time': clock + self.sample_exponential(1/envparam.Photography_service)})
                     else: # if it was alone do the
                         if state.Length_Queue_Photography == system.max_photography_queue_size:
@@ -304,6 +304,7 @@ class mainSystem:
 
                 else:
                     state.Length_Service_Expert1 += 1 # increase the length of filing service
+                    handler.update_waiting_time_filing_case(0,clock)
                     future_event_list.append({'Event Type': 'DF','id':current_event['id'], 'Event Time': clock + self.sample_triangular(
                         envparam.Filling_the_case_min,envparam.Filling_the_case_max,envparam.Filling_the_case_mode)}) # add the id of customer if he enters the filing queue
             elif Event_Type == 'DF':
@@ -346,6 +347,7 @@ class mainSystem:
 
                 else:
                     state.Length_Service_Expert2 += 1 # increase the length of expert service
+                    handler.update_sum_max_EL(0,clock)
                     r = random.random()
                     complaint = 1 if r < envparam.submiting_complaint_probability else 0# set the value if it wants to submit complaint
                     future_event_list.append(
@@ -419,6 +421,9 @@ class mainSystem:
 
                     else:
                         state.Length_Service_Expert1 += 1 # increase the length of filing service
+
+                        handler.update_wating_time_complete_case(0,clock)
+
                         future_event_list.append({'Event Type': 'DC','id':current_event['id'], 'Event Time': clock + self.sample_triangular(
                         envparam.Case_completion_min,envparam.Case_completion_max,envparam.Case_completion_mode)})
 
@@ -465,6 +470,7 @@ class mainSystem:
                     pass
                 else:# if the worker were idle set it busy
                     state.Length_Service_Expert2 += 1 # increase the length of expert service
+                    handler.update_sum_max_EL(0,clock)
                     future_event_list.append({'Event Type': 'DE','complaint': 0,'id': current_event['id'], 'Event Time': clock + self.sample_exponential(1/envparam.Expert_service)})
                     pass
 
@@ -506,6 +512,7 @@ class mainSystem:
 
                     else:
                         state.Length_Service_Photographer += 1
+                        handler.update_sum_max_PhQ(0,clock)
                         future_event_list.append({'Event Type': 'DP','id': current_event['id'], 'Event Time': clock + self.sample_exponential(1/envparam.Photography_service)})
 
             elif Event_Type == 'OIN':# entering a car from outside queue to inside
@@ -544,6 +551,11 @@ class mainSystem:
                     state.waiting_Queue_OutSide.clear() # make the outside queue empty after time
 
             elif Event_Type == "END": # if the simulation ends
+                # print(
+                #     f'accumilitive for filing the case {handler.remain_filing_queue_waiting_time}  num of customers {handler.num_of_filing_queue_customer}')
+                # print(
+                #     f'accumilitive for completing the case {handler.remain_complete_the_case_queue_waiting_time}  num of customers {handler.num_of_complete_the_case_queue_customer}')
+
                 self.warmup.mean_filing_the_case_waiting_time.append(handler.remain_filing_queue_waiting_time / handler.num_of_filing_queue_customer) # compute the mean of filing queue waiting time
                 self.warmup.mean_complete_the_case_waiting_time.append(handler.remain_complete_the_case_queue_waiting_time / handler.num_of_complete_the_case_queue_customer) # compute the mean of complete the case queue waiting time
                 self.warmup.mean_expert_waiting_time.append(handler.sum_Time_EL / handler.num_of_expert_queue_customer) # compute the mean of expert queue waiting time
@@ -665,6 +677,7 @@ class mainSystem:
             photography_avg_times.append(d) # append the average waiting time for photography queue
             whole_system_avg_times.append(e) # append the average waiting time for the whole system
             max_expert_queue_length.append(f) # append the maximum length of the expert queue
+            print('done')
 
 
         return filing_avg_times,completing_avg_times,expert_avg_times,photography_avg_times,whole_system_avg_times,max_expert_queue_length
