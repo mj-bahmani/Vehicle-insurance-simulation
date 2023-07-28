@@ -688,7 +688,7 @@ env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7,
                                                6, 8, 9,9, 0.1 ) # create an environment for sys 1
 env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,
                                                3,3.5,4,8,0) # create an environment for sys 2
-sys1 = System.System(3,2) # create a system for sys 1
+sys1 = System.System(3,3) # create a system for sys 1
 sys2 = System.System(4,3) # create a system for sys 2
 
 # simul1 = mainSystem(env1,sys1,21600, 30)
