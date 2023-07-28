@@ -606,7 +606,7 @@ class mainSystem:
 
 env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7, 6, 8, 9,9, 0.1 ) # make an environment object for sys1
 env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,3,3.5,4,8,0) # make an environment object for sys2
-sys1 = System.System(3,3) # make a system object for sys1
+sys1 = System.System(3,2) # make a system object for sys1
 sys2 = System.System(4,3) # make a system object for sys2
 
 simul1 = mainSystem(env1,sys1,21600, 30)
