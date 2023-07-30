@@ -5,8 +5,8 @@ Input Distributions and Event Types:
 
 1- Arrival:
     - System 1:
-        - Mean = 5 (time = 132000)
-        - Warm-up time = 12000
+        - Mean = 5 (time = 148500)
+        - Warm-up time = 13500
     - System 2:
         - Mean = 3.2 (time = 165000)
         - Warm-up time = 15000
@@ -62,7 +62,7 @@ Staffing:
 
 System 1:
 - Filling and Completing the Case center: Three workers
-- Expert center: Three workers
+- Expert center: Two workers
 - Photography center: Two photographers
 - Complaint Submission center: One staff member
 
@@ -100,7 +100,7 @@ efficiency of both systems and identify potential areas for improvement.
 Simulation Run Time:
 --------------------
 
-- System 1: 132000 time units
+- System 1: 148500 time units
 - System 2: 165000 time units
 
 Interactions in this simulation occur based on the occurrence of these events and the additional parameters.
@@ -562,6 +562,7 @@ class mainSystem:
                 self.warmup.mean_photography_waiting_time.append(handler.sum_Time_phQ / handler.num_of_photography_queue_customer)  # compute the mean of photography queue waiting time
                 self.warmup.mean_whole_system_remain_time.append(handler.remainSystem/ handler.num_of_remain_in_system_customer)
                 self.warmup.max_expert_queue_length.append(handler.MEL) # compute the max of expert queue length
+                self.warmup.max_photography_queue_length.append(handler.MPhL) # compute the max of photography queue length
 
                 running = False
             elif Event_Type == 'Frame_END': # if the frame ends
@@ -668,7 +669,7 @@ class mainSystem:
         expert_avg_times = [] # make a list to save the average waiting time for expert queue
         photography_avg_times = [] # make a list to save the average waiting time for photography queue
         whole_system_avg_times = [] # make a list to save the average waiting time for the whole system
-        max_expert_queue_length = [] # make a list to save the maximum length of the expert queue
+        max_photography_queue_length = [] # make a list to save the maximum length of the expert queue
         for i in range(replication):
             a,b,c,d,e,f = self.run_simul_for_mean(repeatTimes)
             filing_avg_times.append(a) # append the average waiting time for filing queue
@@ -676,11 +677,11 @@ class mainSystem:
             expert_avg_times.append(c)  # append the average waiting time for expert queue
             photography_avg_times.append(d) # append the average waiting time for photography queue
             whole_system_avg_times.append(e) # append the average waiting time for the whole system
-            max_expert_queue_length.append(f) # append the maximum length of the expert queue
+            max_photography_queue_length.append(f) # append the maximum length of the expert queue
             print('done')
 
 
-        return filing_avg_times,completing_avg_times,expert_avg_times,photography_avg_times,whole_system_avg_times,max_expert_queue_length
+        return filing_avg_times,completing_avg_times,expert_avg_times,photography_avg_times,whole_system_avg_times,max_photography_queue_length
 
 
 
@@ -688,7 +689,7 @@ env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7,
                                                6, 8, 9,9, 0.1 ) # create an environment for sys 1
 env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,
                                                3,3.5,4,8,0) # create an environment for sys 2
-sys1 = System.System(3,3) # create a system for sys 1
+sys1 = System.System(3,2) # create a system for sys 1
 sys2 = System.System(4,3) # create a system for sys 2
 
 # simul1 = mainSystem(env1,sys1,21600, 30)
@@ -697,11 +698,11 @@ sys2 = System.System(4,3) # create a system for sys 2
 # simul2 = mainSystem(env2,sys2,21600, 30)
 # simul2.run_simul(20)
 
-simul1 = mainSystem(env1,sys1,132000, 30, 12000) # create a main system for sys 1
-f1,c1,e1,ph1,r1,me1 = simul1.get_final_res(20, 50 ) # get the final results for sys 1
+simul1 = mainSystem(env1,sys1,148500, 30, 13500) # create a main system for sys 1
+f1,c1,e1,ph1,r1,mph1 = simul1.get_final_res(20, 50 ) # get the final results for sys 1
 
 simul2 = mainSystem(env2,sys2,165000, 30, 15000) # create a main system for sys 2
-f2,c2,e2,ph2,r2,me2 = simul2.get_final_res(20,50) # get the final results for sys 2
+f2,c2,e2,ph2,r2,mph2 = simul2.get_final_res(20,50) # get the final results for sys 2
 
 
 
@@ -712,7 +713,7 @@ df2 = pd.DataFrame(map(list,zip(*[c1,c2])),columns =['sys1','sys2']) # make a da
 df3 = pd.DataFrame(map(list,zip(*[e1,e2])),columns =['sys1','sys2']) # make a dataframe for the average waiting time for expert queue
 df4 = pd.DataFrame(map(list,zip(*[ph1,ph2])),columns = ['sys1','sys2']) # make a dataframe for the average waiting time for photography queue
 df5 = pd.DataFrame(map(list,zip(*[r1,r2])),columns =['sys1','sys2']) # make a dataframe for the average waiting time for the whole system
-df6 = pd.DataFrame(map(list,zip(*[me1,me2])),columns =['sys1','sys2']) # make a dataframe for the maximum length of the expert queue
+df6 = pd.DataFrame(map(list,zip(*[mph1,mph2])),columns =['sys1','sys2']) # make a dataframe for the maximum length of the photography queue
 
 with pd.ExcelWriter("output3.xlsx") as writer:
     # use to_excel function and specify the sheet_name and index
@@ -723,4 +724,4 @@ with pd.ExcelWriter("output3.xlsx") as writer:
     df3.to_excel(writer,sheet_name="expert_avg_times", index=False) # write the dataframe to excel file
     df4.to_excel(writer,sheet_name="photography_avg_times", index=False)
     df5.to_excel(writer,sheet_name="whole_system_avg_times", index=False)
-    df6.to_excel(writer,sheet_name="max_expert_queue_length", index=False)
+    df6.to_excel(writer,sheet_name="max_photography_queue_length", index=False)

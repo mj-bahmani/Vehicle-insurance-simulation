@@ -27,6 +27,8 @@ class WarmUP:
         self.mean_expert_waiting_time = [] # this is used to store expert mean wating time in each replication
         self.mean_photography_waiting_time = [] # this is used to store photography mean wating time in each replication
         self.mean_whole_system_remain_time = [] # this is used to store whole system mean wating time in each replication
+        self.max_photography_queue_length = [] # this is used to store photography max queue length in each replication
+
 
 
     def res_2_numpy(self):
@@ -146,4 +148,4 @@ class WarmUP:
         return  (sum(self.mean_filing_the_case_waiting_time)/len(self.mean_filing_the_case_waiting_time),
                  sum(self.mean_complete_the_case_waiting_time)/len(self.mean_complete_the_case_waiting_time),
                  sum(self.mean_expert_waiting_time)/len(self.mean_expert_waiting_time),sum(self.mean_photography_waiting_time)/len(self.mean_photography_waiting_time),
-                 sum(self.mean_whole_system_remain_time)/len(self.mean_whole_system_remain_time), sum(self.max_expert_queue_length)/len(self.max_expert_queue_length))
+                 sum(self.mean_whole_system_remain_time)/len(self.mean_whole_system_remain_time), sum(self.max_photography_queue_length)/len(self.max_photography_queue_length))

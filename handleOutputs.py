@@ -97,7 +97,7 @@ class handleOutput:
 
         self.SPhL += (clock - self.clockPhotography) * state.Length_Queue_Photography # this is the surface under the number of customers in the photography queue
         self.clockPhotography = clock # this is the last time we compute the surface under the number of customers in the photography queue
-        if state.Length_Queue_Photography > self.MPhL: # this is the maximum number of customers in the photography queue
+        if state.Length_Queue_Photography > self.MPhL and clock > self.warmup_time: # this is the maximum number of customers in the photography queue after the warmup time
             self.MPhL = state.Length_Queue_Photography # this is the maximum number of customers in the photography queue
 
     def update_outside_surface(self,clock,state):
