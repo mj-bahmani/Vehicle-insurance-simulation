@@ -84,8 +84,7 @@ class WarmUP:
         smoothed = self.smoother(kernel_size, self.mean_fq) # find the moving average
         plt.plot(x, self.mean_fq, label='mean fq',linewidth=3.0,color='red')
         plt.plot(x, smoothed, label='mean fq',linewidth=3.0,color='k')
-        print(self.mean_fq)
-        print(smoothed)
+
         plt.legend(['avg across replication', 'moving average'],fontsize = 15)
         plt.title('mean length of filing the case queue',fontsize = 30)
         plt.xlabel("frame number",fontsize = 20)
@@ -98,8 +97,6 @@ class WarmUP:
         smoothed = self.smoother(kernel_size, self.mean_eq) # find the moving average
         plt.plot(x, self.mean_eq, label='mean eq',linewidth=3,color='red')
         plt.plot(x, smoothed, label='mean eq',linewidth=3,color='k')
-        # print(self.mean_eq)
-        # print(smoothed)
         plt.legend(['avg across replication', 'moving average'],fontsize = 15)
         plt.title('mean length of Expert queue',fontsize = 30)
         plt.xlabel("frame number",fontsize = 20)

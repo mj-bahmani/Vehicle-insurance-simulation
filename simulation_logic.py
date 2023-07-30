@@ -5,8 +5,8 @@ Input Distributions and Event Types:
 
 1- Arrival:
     - System 1:
-        - Mean = 5 (time = 132000)
-        - Warm-up time = 12000
+        - Mean = 5 (time = 148500)
+        - Warm-up time = 13500
     - System 2:
         - Mean = 3.2 (time = 165000)
         - Warm-up time = 15000
@@ -62,7 +62,7 @@ Staffing:
 
 System 1:
 - Filling and Completing the Case center: Three workers
-- Expert center: Three workers
+- Expert center: Two workers
 - Photography center: Two photographers
 - Complaint Submission center: One staff member
 
@@ -100,7 +100,7 @@ efficiency of both systems and identify potential areas for improvement.
 Simulation Run Time:
 --------------------
 
-- System 1: 132000 time units
+- System 1: 148500 time units
 - System 2: 165000 time units
 
 Interactions in this simulation occur based on the occurrence of these events and the additional parameters.
@@ -606,11 +606,11 @@ class mainSystem:
 
 env1 = environmentDistribution.EnvironmentDist(5 ,5, 6, 7, 6, 8, 9,9, 0.1 ) # make an environment object for sys1
 env2 = environmentDistribution.EnvironmentDist(3.2,6,8,10,3,3.5,4,8,0) # make an environment object for sys2
-sys1 = System.System(3,3) # make a system object for sys1
+sys1 = System.System(3,2) # make a system object for sys1
 sys2 = System.System(4,3) # make a system object for sys2
 
 simul1 = mainSystem(env1,sys1,21600, 30)
-simul1.run_simul(50)
+simul1.run_simul(10)
 
 simul2 = mainSystem(env2,sys2,21600, 30)
-simul2.run_simul(50)
+simul2.run_simul(10)
