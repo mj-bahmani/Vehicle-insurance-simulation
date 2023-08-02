@@ -12,7 +12,7 @@
 
 ## Description
 
-This repository contains a simulation project for a vehicle insurance organization. The project involves simulating various events that occur in the insurance process, each with its own service time distribution. Additionally, different scenarios such as the probability of a car arriving alone or a customer making a complaint are taken into consideration in the simulation.
+This repository contains a simulation project for a vehicle insurance organization. The project involves simulating various events that occur in the insurance process, each with its own service time distribution. Additionally, different scenarios such as the probability of a car arriving alone or a customer making a complaint are taken into consideration in the simulation.The simulation initializes in an empty state.
 
 ## <a name="event-types"></a>🎯 Event Types
 
@@ -94,4 +94,3 @@ This simulation project is authored by Reza Alvandi and MohammadJavad Bahmani.
 
 For more details and contribution guidelines, please refer to the documentation provided in the repository. Happy Simulating! 🚀
 
-The simulation initializes in an empty state.
